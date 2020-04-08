@@ -63,14 +63,15 @@ class PipelineToPandas():
 
 
 if __name__ == "__main__":
-    twitter_search_term_dict = {0: ['#COVID19'], 1: ['@joebiden'], 2: ['@realdonaldtrump'],
-                                3: ['#COVID19' '@joebiden'], 4: ['#COVID19' '@realdonaldtrump']}
+    twitter_search_term_dict = {1: ['@joebiden'], 2: ['#COVID19' '@joebiden'], 3: ['#COVID19'],
+                                4: ['#COVID19' '@realdonaldtrump'], 5: ['@realdonaldtrump']}
     
-    pipeline = PipelineToPandas()
-    pipeline.load_to_spark_df('../zip_data/data/test.json')
-    pipeline.truncate_spark_df('co', 0)
+    # pipeline = PipelineToPandas()
+    # path_to_json
+    # pipeline.load_to_spark_df('../zip_data/data/test.json')
+    # pipeline.truncate_spark_df('co', 0)
 
-    tweet_df = pipeline.spark_df_to_pandas()
-    print(tweet_df.head(5))
+    # tweet_df = pipeline.spark_df_to_pandas()
+    # print(tweet_df.head(5))
 
-    # IFNEM block works, 4/7/10 @10
+    # # IFNEM block works, 4/7/10 @10
