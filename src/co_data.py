@@ -3,9 +3,12 @@ import numpy as np
 import os
 import re
 import matplotlib.pyplot as plt
+plt.style.use('fivethirtyeight')
 from wordcloud import WordCloud
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction import stop_words
+stopwords = stop_words.ENGLISH_STOP_WORDS
 from pipeline_to_pandas import PipelineToPandas
 from s3_interfacer import BucketInterfacer
 
@@ -38,7 +41,7 @@ class TextCleaner():
                              "mustn't":"must not"}
     
 
-    def clean_tweets(self, df_tweet_text):
+    def clean_tweets(self, df_tweet_text, exclude_stopwords=False):
         '''
         This function will clean the text of tweets:
         order:
@@ -55,9 +58,21 @@ class TextCleaner():
         
         joined_re_groups = '|'.join([group for group in self.re_substitution_groups])
         without_re_groups = re.sub(joined_re_groups,' ',no_grammar_abbrevs)
-        one_space_separated_tweet = ' '.join([word for word in without_re_groups.split()])
+        if exclude_stopwords:
+            one_space_separated_tweet = ' '.join([word for word in without_re_groups.split() if word not in stopwords])
+        else:
+            one_space_separated_tweet = ' '.join([word for word in without_re_groups.split()])
         return one_space_separated_tweet
 
+
+def make_cloud(ax, pd_series_cleaned_text, state='CO', treatment='2', save_fig = False):
+    clean_txt_string = pd_series_cleaned_text.str.cat(sep=' ')
+
+    wordcloud = WordCloud().generate(clean_txt_string)
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis("off")
+
+    plt.savefig(f'../images/{state}_{treatment}_cloud.png',dpi=300)
 
 
 if __name__ == '__main__':
@@ -87,25 +102,42 @@ if __name__ == '__main__':
     json_list = ['1_agg.json','2_agg.json','3_agg.json','4_agg.json','5_agg.json']
     
     select_state = 'co'
-    select_treatment = 4
-    for i in range(len(json_list)):
-        path_to_json = f'../data/CO/{json_list[i]}'
-        pipeline = PipelineToPandas()
-        co_3_df = pipeline.spark_df_to_pandas(path_to_json,'co',i+1)
+    select_treatment = 2
 
-        # Clean twitter text
-        text_cleaner = TextCleaner()
-        clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x))
+    path_to_json = f'../data/CO/{json_list[select_treatment]}'
+    pipeline = PipelineToPandas()
+    co_3_df = pipeline.spark_df_to_pandas(path_to_json,'co',select_treatment+1)
 
-        # generate wordcloud
-        clean_txt_string = clean_tweet_col.str.cat(sep=' ')
+    # Clean twitter text
+    text_cleaner = TextCleaner()
+    clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x))
 
-        wordcloud = WordCloud().generate(clean_txt_string)
-        fig, ax = plt.subplots(1)
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis("off")
+    # # generate wordcloud
+    clean_txt_string = clean_tweet_col.str.cat(sep=' ')
 
-        plt.savefig(f'../images/{select_state}_{i}_cloud.png',dpi=300)
+    # wordcloud = WordCloud().generate(clean_txt_string)
+    # fig, ax = plt.subplots(1)
+    # plt.imshow(wordcloud, interpolation='bilinear')
+    # plt.axis("off")
+
+    # plt.savefig(f'../images/{select_state}_{select_treatment}_cloud2.png',dpi=300)
+
+    # bar plots of freq words
+
+    clean_word_list = clean_txt_string.split()
+
+    new_dict ={}
+    for word in clean_word_list:
+        if word not in new_dict:
+            new_dict[word] = 1
+        else:
+            new_dict[word] += 1
+    
+    sorted_dict = {}
+    for k, v in sorted(new_dict.values(), reverse=True):
+        sorted_dict[k] = v
+
+    sorted_lst = sorted(new_dict, key=new_dict.__getitem__, reverse=True) 
 
     # from sklearn.feature_extraction.text import CountVectorizer
 
