@@ -1,0 +1,5 @@
+# variables that containcredentials (AppsForChange - todfreetod)
+ACCESS_TOKEN = "4700526535-1wkvAT8BXcjwYDhhOVlqVL0yshHKW8aBY6bhrMz"
+ACCESS_TOKEN_SECRET = "I9YULAvhO7VsD9gbfRs9vpC2nlSq6RulqGrgh4sLPvmCS"
+CONSUMER_KEY = "y9ea91T2MCNuFZyvRplnZUMYH"
+CONSUMER_SECRET = "4XhEt1bYPQBycWPVcdHsMFFyWPi52u0R3weOS3AuGBcGtIbCVx"
