@@ -28,9 +28,8 @@ if __name__ == '__main__':
     co_agg_file = '../data/co_aggregate.json'
     # aggregate_data_file('../data/CO/', co_agg_file)
 
-    twitter_search_term_dict = {0: ['#COVID19'], 1: ['@joebiden'], 2: ['@realdonaldtrump'],
-                                3: ['#COVID19' '@joebiden'], 4: ['#COVID19' '@realdonaldtrump'],
-                                5: 'all'}
+    twitter_search_term_dict = {1: ['@joebiden'], 2: ['#COVID19' '@joebiden'], 3: ['#COVID19'],
+                                4: ['#COVID19' '@realdonaldtrump'], 5: ['@realdonaldtrump']}
     
     # Piped in the data to structured pd df below:
 

@@ -16,20 +16,16 @@ class PipelineToPandas():
         )
         self.sc = self.spark.sparkContext
 
-    def load_to_spark_df(self, path_to_json):
-        self.spark_df = self.spark.read.format('json').load(path_to_json)
-
-
-    def truncate_spark_df(self, from_state, search_term_key):
+    def spark_df_to_pandas(self, path_to_json, from_state, search_term_key):
+        spark_df = self.spark.read.format('json').load(path_to_json)
         self.json_attributes = ['id','user','lang','entities','place','created_at','text','source']
-        truncated_spark_df = self.spark_df[self.json_attributes]
+        truncated_spark_df = spark_df[self.json_attributes]
         
         truncated_spark_df = truncated_spark_df.withColumn('state',lit(from_state))
-        self.truncated_spark_df = truncated_spark_df.withColumn('search_term_key',lit(search_term_key))
+        truncated_spark_df = truncated_spark_df.withColumn('search_term_key',lit(search_term_key))
+        truncated_spark_df.createOrReplaceTempView('sql_temp_table')
 
-    def spark_df_to_pandas(self):
-        self.truncated_spark_df.createOrReplaceTempView('sql_temp_table')
-        new_spark_df = self.spark.sql('''
+        self.new_spark_df = self.spark.sql('''
             SELECT 
                 id AS tweet_id,
                 state,
@@ -61,7 +57,7 @@ class PipelineToPandas():
             WHERE
                 lang = 'en'
             ''')
-        self.pandas_df = new_spark_df.toPandas()
+        self.pandas_df = self.new_spark_df.toPandas()
         return self.pandas_df
 
 
