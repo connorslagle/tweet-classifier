@@ -42,10 +42,11 @@ class TextCleaner():
         '''
         This function will clean the text of tweets:
         order:
-        1. remove 'http(s)'         5. replace text abbreviations with expanded text
-        2. remove '@#'              6. replace grammar abbreviations with expanded text
-        3. lowercase
-        4. remove punctiation
+        1. lowercase
+        2. change txt abbreviations
+        3. change grammar abbreviation
+        4. remove non-text characters
+        5. eliminate extra space
         '''
         # print(test)
         lower = df_tweet_text.lower()
@@ -84,25 +85,28 @@ if __name__ == '__main__':
     # Piped in the data to structured pd df below:
 
     json_list = ['1_agg.json','2_agg.json','3_agg.json','4_agg.json','5_agg.json']
+    
+    select_state = 'co'
+    select_treatment = 4
+    for i in range(len(json_list)):
+        path_to_json = f'../data/CO/{json_list[i]}'
+        pipeline = PipelineToPandas()
+        co_3_df = pipeline.spark_df_to_pandas(path_to_json,'co',i+1)
 
-    select_treatment = 0
-    path_to_json = f'../data/CO/{json_list[select_treatment]}'
-    pipeline = PipelineToPandas()
-    co_3_df = pipeline.spark_df_to_pandas(path_to_json,'co',select_treatment)
+        # Clean twitter text
+        text_cleaner = TextCleaner()
+        clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x))
 
-    # Clean twitter text
-    text_cleaner = TextCleaner()
-    clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x))
+        # generate wordcloud
+        clean_txt_string = clean_tweet_col.str.cat(sep=' ')
 
-    # generate wordcloud
-    clean_txt_string = clean_tweet_col.str.cat(sep=' ')
+        wordcloud = WordCloud().generate(clean_txt_string)
+        fig, ax = plt.subplots(1)
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
 
-    wordcloud = WordCloud().generate(clean_txt_string)
-    fig, ax = plt.subplots(1)
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis("off")
+        plt.savefig(f'../images/{select_state}_{i}_cloud.png',dpi=300)
 
-    plt.savefig('../images/biden_cloud.png')
     # from sklearn.feature_extraction.text import CountVectorizer
 
     # tfidf
