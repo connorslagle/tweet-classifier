@@ -39,7 +39,7 @@ class TextCleaner():
                              "wouldn't":"would not", "don't":"do not", "doesn't":"does not","didn't":"did not",
                              "can't":"can not","couldn't":"could not","shouldn't":"should not","mightn't":"might not",
                              "mustn't":"must not"}
-    
+
 
     def clean_tweets(self, df_tweet_text, exclude_stopwords=False):
         '''
@@ -56,14 +56,16 @@ class TextCleaner():
         no_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
         no_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in no_text_abbrevs.split()])
         
-        joined_re_groups = '|'.join([group for group in self.re_substitution_groups])
+        joined_re_groups = '|'.join([group for group in self.re_substitution_groups[:3]])
         without_re_groups = re.sub(joined_re_groups,' ',no_grammar_abbrevs)
+        
+        self.emoji_list = re.sub(r'\w','',without_re_groups).split()     # encode with utf-8
+
         if exclude_stopwords:
             one_space_separated_tweet = ' '.join([word for word in without_re_groups.split() if word not in stopwords])
         else:
             one_space_separated_tweet = ' '.join([word for word in without_re_groups.split()])
         return one_space_separated_tweet
-
 
 def make_cloud(ax, pd_series_cleaned_text, state='CO', treatment='2', save_fig = False):
     clean_txt_string = pd_series_cleaned_text.str.cat(sep=' ')
@@ -74,6 +76,21 @@ def make_cloud(ax, pd_series_cleaned_text, state='CO', treatment='2', save_fig =
 
     plt.savefig(f'../images/{state}_{treatment}_cloud.png',dpi=300)
 
+def to_count_dict(input_lst, sorted_by_vals_desc=True):
+    new_dict ={}
+    for word in input_lst:
+        if word not in new_dict:
+            new_dict[word] = 1
+        else:
+            new_dict[word] += 1
+    
+    if sorted_by_vals_desc:
+        keys = sorted(new_dict, key=new_dict.__getitem__, reverse=True)
+        values = [new_dict[elem] for elem in sorted_by_vals_desc]
+    else:
+        keys, values = new_dict.items()
+
+    return [keys, values]
 
 if __name__ == '__main__':
     '''
@@ -111,6 +128,7 @@ if __name__ == '__main__':
     # Clean twitter text
     text_cleaner = TextCleaner()
     clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x))
+    tweet_emoji = text_cleaner.emoji_list
 
     # # generate wordcloud
     clean_txt_string = clean_tweet_col.str.cat(sep=' ')
@@ -137,7 +155,12 @@ if __name__ == '__main__':
     for k, v in sorted(new_dict.values(), reverse=True):
         sorted_dict[k] = v
 
-    sorted_keys_by_desc_value = sorted(new_dict, key=new_dict.__getitem__, reverse=True) 
+    sorted_keys_by_desc_value = sorted(new_dict, key=new_dict.__getitem__, reverse=True)
+    
+
+
+    fig, ax = plt.subplot(1)
+    ax.bar()
 
     # from sklearn.feature_extraction.text import CountVectorizer
 
