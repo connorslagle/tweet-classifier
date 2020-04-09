@@ -31,7 +31,7 @@ count = 0
 for tweet in tweets_w_place:
     count += 1
     if count == 1:
-        pprint.pprint(tweet['user'])
+        pprint.pprint(tweet)
 
 print(tweets_w_place.count())
 

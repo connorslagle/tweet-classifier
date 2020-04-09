@@ -53,6 +53,122 @@ I wanted to simulate a data science project from conceptualization to data wrang
 
 The topic I chose to investigate is in the back of everyone's mind at the moment; the COVID-19 pandemic. Being a national emergency, I figured people on twitter would express emotion towards their political leaders concerning the topic. So, tweets were collected using Twitter's free API and the [Tweepy](http://www.tweepy.org/) python library in three distinct geopolitical regions in the contigous United States: Oregon, Colorado, and Arkansas. These regions were chosen via their representation in the U.S. Senate; Oregon - Liberal, Colorado - Bipartisan, and Arkansas - Conservative. Keeping with the political focus, tweets were streamed with the following keyword combinations:
 
+1. @joebiden
+2. @joebiden & #COVID19
+3. #COVID19
+4. @realdonaldtrump & #COVID19
+5. @realdonaldtrump
+
+For each of these keyword combinations, ~8,000 tweets were collected in a 6 day period from 3/31/2020 to 4/6/2020 for each region; totaling ~ 120,000 tweets. The tweets were stored in their natural, unstructured state and aggregated. Tweets are naturally structured as nested json files with many attributes. Here's an example of a relatively short tweet:
+
+```python
+    {'contributors': None,
+    'coordinates': None,
+    'created_at': 'Wed Apr 01 20:15:11 +0000 2020',
+    'display_text_range': [25, 90],
+    'entities': {'hashtags': [],
+                'symbols': [],
+                'urls': [],
+                'user_mentions': [{'id': 1917731,
+                                    'id_str': '1917731',
+                                    'indices': [0, 8],
+                                    'name': 'The Hill',
+                                    'screen_name': 'thehill'},
+                                    {'id': 471672239,
+                                    'id_str': '471672239',
+                                    'indices': [9, 24],
+                                    'name': 'Kellyanne Conway',
+                                    'screen_name': 'KellyannePolls'}]},
+    'favorite_count': 0,
+    'favorited': False,
+    'filter_level': 'low',
+    'geo': None,
+    'id': 1245444620122816512,
+    'id_str': '1245444620122816512',
+    'in_reply_to_screen_name': 'thehill',
+    'in_reply_to_status_id': 1245441154721644549,
+    'in_reply_to_status_id_str': '1245441154721644549',
+    'in_reply_to_user_id': 1917731,
+    'in_reply_to_user_id_str': '1917731',
+    'is_quote_status': False,
+    'lang': 'en',
+    'place': {'attributes': {},
+            'bounding_box': {'coordinates': [[[-94.61771, 33.004106],
+                                                [-94.61771, 36.499767],
+                                                [-89.644838, 36.499767],
+                                                [-89.644838, 33.004106]]],
+                                'type': 'Polygon'},
+            'country': 'United States',
+            'country_code': 'US',
+            'full_name': 'Arkansas, USA',
+            'id': 'e8ad2641c1cb666c',
+            'name': 'Arkansas',
+            'place_type': 'admin',
+            'url': 'https://api.twitter.com/1.1/geo/id/e8ad2641c1cb666c.json'},
+    'quote_count': 0,
+    'reply_count': 0,
+    'retweet_count': 0,
+    'retweeted': False,
+    'source': '<a href="http://twitter.com/download/android" '
+            'rel="nofollow">Twitter for Android</a>',
+    'text': "@thehill @KellyannePolls Just go away won't you Kelly and it would "
+            'be a service to America',
+    'timestamp_ms': '1585772111336',
+    'truncated': False,
+    'user': {'contributors_enabled': False,
+            'created_at': 'Fri Dec 26 16:42:35 +0000 2014',
+            'default_profile': True,
+            'default_profile_image': False,
+            'description': 'arkansas democrat',
+            'favourites_count': 4242,
+            'follow_request_sent': None,
+            'followers_count': 20,
+            'following': None,
+            'friends_count': 129,
+            'geo_enabled': True,
+            'id': 2944125506,
+            'id_str': '2944125506',
+            'is_translator': False,
+            'lang': None,
+            'listed_count': 0,
+            'location': 'Arkansas, USA',
+            'name': 'Susan Martin',
+            'notifications': None,
+            'profile_background_color': 'C0DEED',
+            'profile_background_image_url': 'http://abs.twimg.com/images/themes/theme1/bg.png',
+            'profile_background_image_url_https': 'https://abs.twimg.com/images/themes/theme1/bg.png',
+            'profile_background_tile': False,
+            'profile_image_url': 'http://pbs.twimg.com/profile_images/1101888795379728384/GEKIK6sh_normal.jpg',
+            'profile_image_url_https': 'https://pbs.twimg.com/profile_images/1101888795379728384/GEKIK6sh_normal.jpg',
+            'profile_link_color': '1DA1F2',
+            'profile_sidebar_border_color': 'C0DEED',
+            'profile_sidebar_fill_color': 'DDEEF6',
+            'profile_text_color': '333333',
+            'profile_use_background_image': True,
+            'protected': False,
+            'screen_name': 'suem4444',
+            'statuses_count': 2244,
+            'time_zone': None,
+            'translator_type': 'none',
+            'url': None,
+            'utc_offset': None,
+            'verified': False}}
+```
+
+From s3, the tweets were queried for select fields and stored in local a pandas DataFrame prior to processed. The structure of the flattened pandas DataFrame is shown below:
+
+<p align="center">
+    <img src="images/pandasdf.png" width='400'/>
+</p>
+
+Most of the fields mentioned above were gathered for future analysis; fields relevant to analysis sentiment are **tweet_text, state, and search_term_key,** all of which are string datatype.
+
+## Data Pipeline
+
+<p align="center">
+    <img src="images/tweet_path.png" width='500'/>
+</p>
+
 
 <!-- <p align="center">
     <img src="images/joe.png" width='300' />

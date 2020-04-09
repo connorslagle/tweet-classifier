@@ -3,6 +3,8 @@ import numpy as np
 import os
 import re
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
+plt.rcParams.update({'font.size': 18})
 from wordcloud import WordCloud
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -107,8 +109,7 @@ class PlotFormatter():
     def __init__(self, subplots=1, figsize=(12,8), style='ggplot'):
         self.fig, self.ax = plt.subplots(subplots,figsize=figsize)
         self.num_subplots = subplots
-        plt.style.use(style)
-        plt.rcParams.update({'font.size': 18})
+        
 
     def make_barchart(self, subplot_number, x_label_list, y_data, y_label, title, normalize=True):
         x_vals = np.arange(len(x_label_list))
@@ -136,13 +137,15 @@ class PlotFormatter():
                 label.set_rotation(45)
                 label.set_ha('right')
     
-    def make_hist(self, subplot_number, y_data, x_label, num_bins=50, normalize=True, cumulative=True):
+    def make_hist(self, line_name, y_data, x_label, subplot_number=0, num_bins=50, normalize=True, cumulative=False):
         # x_vals = np.linspace(x_start_stop[0], x_start_stop[1], 1000)
 
         if self.num_subplots == 1:
-            self.ax.hist(y_data, bins = num_bins, density=normalize, cumulative=cumulative)
+            self.ax.hist(y_data, bins = num_bins, density=normalize, cumulative=cumulative, label=line_name)
             self.ax.set_ylabel('pmf' if normalize else 'count')
-            self.ax.set_ylim((0, 1) if cumulative else (0,30))
+            # self.ax.set_ylim((0, 1) if cumulative else (0,30))
+            self.ax.legend()
+            self.ax.set_xlim((-0.2, 0.2))
             self.ax.set_xlabel(x_label)
         else:
             self.ax[subplot_number].hist(y_data, bins = num_bins, density=normalize, cumulative=cumulative)
@@ -168,6 +171,39 @@ def tweet_col_to_vader_df(tweet_col):
         clean_df[key] = [analyzer.polarity_scores(tweet)[key] for tweet in clean_df['tweet']]
     return clean_df
     
+def bootstrap(x, resamples=1000):
+    """Draw bootstrap resamples from the array x.
+
+    Parameters
+    ----------
+    x: np.array, shape (n, )
+      The data to draw the bootstrap samples from.
+    
+    resamples: int
+      The number of bootstrap samples to draw from x.
+    
+    Returns
+    -------
+    bootstrap_samples: np.array, shape (resamples, n)
+      The bootsrap resamples from x.
+    """
+    bootstrap_samples = []
+
+    for _ in range(resamples):
+        bootstrap = np.random.choice(x, size=len(x), replace=True)
+        bootstrap_samples.append(bootstrap)
+
+    return bootstrap_samples
+
+def bootstrap_ci(sample, stat_function=np.mean, resamples=1000, ci=95):
+
+    bootstrap_samples = bootstrap(sample,resamples=resamples)
+
+    bootstrap_sample_means = list(map(stat_function, bootstrap_samples))
+
+    low_bound = np.percentile(bootstrap_sample_means, (100-ci)/2)
+    upper_bound = np.percentile(bootstrap_sample_means, (100+ci)/2)
+    ci_bounds = [low_bound, upper_bound]
 
 if __name__ == '__main__':
     '''
@@ -196,41 +232,50 @@ if __name__ == '__main__':
     json_list = ['1_agg.json','2_agg.json','3_agg.json','4_agg.json','5_agg.json']
     
     select_state = 'co'
-    select_treatment = 4
+    select_treatment = 0
 
     treatment_dict = {0: '@joebiden', 1: '@joebiden & #covid19', 2: '#covid19',
                       3: '@realdonaldtrump & #covid19', 4: '@realdonaldtrump'}
 
-    # for select_treatment in range(len(json_list)):
-    path_to_json = f'../data/CO/{json_list[select_treatment]}'
     pipeline = PipelineToPandas()
-    co_3_df = pipeline.spark_df_to_pandas(path_to_json,select_state,select_treatment+1)
-
-    # Clean twitter text
-    text_cleaner = TextCleaner()
-    clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x,exclude_stopwords=False))
-    tweet_emoji = text_cleaner.emoji_list
-
-    # # generate wordcloud
-    clean_txt_string = clean_tweet_col.str.cat(sep=' ')
-
-    # bar plots of freq words
-
-    clean_word_list = clean_txt_string.split()
-
-    keys, vals = to_count_list(clean_word_list)
-
-    plotter = PlotFormatter()
-    # plotter.make_barchart(0,keys[:25],vals[:25],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment_dict[select_treatment]}')
-    # plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
-
-    # VADER
     analyzer = SentimentIntensityAnalyzer()
 
-    clean_df = tweet_col_to_vader_df(clean_tweet_col)
-    plotter.make_hist(0,clean_df['compound'],'Compound Sentiment',normalize=True)
-    plotter.save_fig(f'{select_state}_{select_treatment}_compound_clean_sent.png')
+    plotter = PlotFormatter(subplots=1)
+
+    for select_treatment in range(len(json_list)):
+        path_to_json = f'../data/CO/{json_list[select_treatment]}'
+        
+        co_3_df = pipeline.spark_df_to_pandas(path_to_json,select_state,select_treatment+1)
+
+        # Clean twitter text
+        text_cleaner = TextCleaner()
+        clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x,exclude_stopwords=False))
+        tweet_emoji = text_cleaner.emoji_list
+
+        # # generate wordcloud
+        clean_txt_string = clean_tweet_col.str.cat(sep=' ')
+
+        # bar plots of freq words
+
+        clean_word_list = clean_txt_string.split()
+
+        keys, vals = to_count_list(clean_word_list)
+
+        
+        # plotter.make_barchart(0,keys[:25],vals[:25],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment_dict[select_treatment]}')
+        # plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
+
+        # VADER
+
+        clean_df = tweet_col_to_vader_df(co_3_df['tweet_text'])
+
+        bootstrap_samples_positive_clean = bootstrap(clean_df['pos'])
+
+        bootstrap_sample_means = list(map(np.mean, bootstrap_samples_positive_clean))
+
+        plotter.make_hist(f'{select_state}_{select_treatment}', bootstrap_sample_means,' Mean Positive Sentiment',normalize=False)
+    plotter.save_fig(f'{select_state}_all_mean_positive_dirty_sent.png')
     
-    emoji_df = tweet_col_to_vader_df(tweet_emoji)
-    plotter.make_hist(0,emoji_df['compound'],'Compound Sentiment',normalize=True)
-    plotter.save_fig(f'{select_state}_{select_treatment}_compound_emoji_sent.png')
+    # emoji_df = tweet_col_to_vader_df(tweet_emoji)
+    # plotter.make_hist(0,emoji_df['compound'],'Compound Sentiment',normalize=True)
+    # plotter.save_fig(f'{select_state}_{select_treatment}_compound_emoji_sent.png')
