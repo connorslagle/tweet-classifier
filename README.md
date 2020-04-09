@@ -19,3 +19,24 @@ Outliine:
 9. MVP+: do 8 for OR/AR
 10. Conclusion
 11. references
+
+<p align="center">
+    <img src="images/co_0_top25words.png" width='400' />
+    <img src="images/co_0_top25words_nostops.png" width = '400' />
+</p>
+<p align="center">
+    <img src="images/co_1_top25words.png" width='400' />
+    <img src="images/co_1_top25words_nostops.png" width = '400' />
+</p>
+<p align="center">
+    <img src="images/co_2_top25words.png" width='400' />
+    <img src="images/co_2_top25words_nostops.png" width = '400' />
+</p>
+<p align="center">
+    <img src="images/co_3_top25words.png" width='400' />
+    <img src="images/co_3_top25words_nostops.png" width = '400' />
+</p>
+<p align="center">
+    <img src="images/co_4_top25words.png" width='400' />
+    <img src="images/co_4_top25words_nostops.png" width = '400' />
+</p>

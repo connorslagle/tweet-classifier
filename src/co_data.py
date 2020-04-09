@@ -181,7 +181,7 @@ if __name__ == '__main__':
 
         # Clean twitter text
         text_cleaner = TextCleaner()
-        clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x,exclude_stopwords=False))
+        clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x,exclude_stopwords=True))
         tweet_emoji = text_cleaner.emoji_list
 
         # # generate wordcloud
@@ -194,8 +194,8 @@ if __name__ == '__main__':
         keys, vals = to_count_list(clean_word_list)
 
         plotter = PlotFormatter()
-        plotter.barchart(0,keys[:25],vals[:25],'word relative frequency (a.u.)',f'Top 25 words for {treatment_dict[select_treatment]}')
-        plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
+        plotter.barchart(0,keys[:25],vals[:25],'word relative frequency (a.u.)',f'Top 25 words for {treatment_dict[select_treatment]}, w/o stopwords')
+        plotter.save_fig(f'{select_state}_{select_treatment}_top25words_nostops.png')
 
     # from sklearn.feature_extraction.text import CountVectorizer
 
