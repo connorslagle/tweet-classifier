@@ -110,7 +110,7 @@ class PlotFormatter():
         plt.style.use(style)
         plt.rcParams.update({'font.size': 18})
 
-    def barchart(self, subplot_number, x_label_list, y_data, y_label, title, normalize=True):
+    def make_barchart(self, subplot_number, x_label_list, y_data, y_label, title, normalize=True):
         x_vals = np.arange(len(x_label_list))
         
         if normalize:
@@ -130,11 +130,26 @@ class PlotFormatter():
         else:
             self.ax[subplot_number].bar(x_vals, y_data, tick_label=x_label_list, align='center', alpha=0.75)
             self.ax[subplot_number].set_ylabel(y_label)
-            self.ax.set_ylim((0,0.40))
+            self.ax[subplot_number].set_ylim((0,0.40))
             self.ax[subplot_number].set_title(title)
             for label in self.ax[subplot_number].get_xticklabels():
                 label.set_rotation(45)
                 label.set_ha('right')
+    
+    def make_hist(self, subplot_number, y_data, x_label, num_bins=50, normalize=True, cumulative=True):
+        # x_vals = np.linspace(x_start_stop[0], x_start_stop[1], 1000)
+
+        if self.num_subplots == 1:
+            self.ax.hist(y_data, bins = num_bins, density=normalize, cumulative=cumulative)
+            self.ax.set_ylabel('pmf' if normalize else 'count')
+            self.ax.set_ylim((0, 1) if cumulative else (0,30))
+            self.ax.set_xlabel(x_label)
+        else:
+            self.ax[subplot_number].hist(y_data, bins = num_bins, density=normalize, cumulative=cumulative)
+            self.ax[subplot_number].set_ylabel('pmf' if normalize else 'count')
+            self.ax[subplot_number].set_ylim((0, 30))
+            self.ax[subplot_number].set_xlabel(x_label)
+
 
     def save_fig(self,saved_figure_name):
         plt.savefig(f'../images/{saved_figure_name}', dpi=300)
@@ -181,7 +196,7 @@ if __name__ == '__main__':
     json_list = ['1_agg.json','2_agg.json','3_agg.json','4_agg.json','5_agg.json']
     
     select_state = 'co'
-    select_treatment = 2
+    select_treatment = 4
 
     treatment_dict = {0: '@joebiden', 1: '@joebiden & #covid19', 2: '#covid19',
                       3: '@realdonaldtrump & #covid19', 4: '@realdonaldtrump'}
@@ -206,8 +221,16 @@ if __name__ == '__main__':
     keys, vals = to_count_list(clean_word_list)
 
     plotter = PlotFormatter()
-    plotter.barchart(0,keys[:25],vals[:25],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment_dict[select_treatment]}')
-    plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
+    # plotter.make_barchart(0,keys[:25],vals[:25],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment_dict[select_treatment]}')
+    # plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
 
     # VADER
     analyzer = SentimentIntensityAnalyzer()
+
+    clean_df = tweet_col_to_vader_df(clean_tweet_col)
+    plotter.make_hist(0,clean_df['compound'],'Compound Sentiment',normalize=True)
+    plotter.save_fig(f'{select_state}_{select_treatment}_compound_clean_sent.png')
+    
+    emoji_df = tweet_col_to_vader_df(tweet_emoji)
+    plotter.make_hist(0,emoji_df['compound'],'Compound Sentiment',normalize=True)
+    plotter.save_fig(f'{select_state}_{select_treatment}_compound_emoji_sent.png')

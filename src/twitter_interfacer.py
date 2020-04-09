@@ -36,7 +36,6 @@ class StdOutListener(StreamListener):
     def on_data(self, data):
         '''
         Method that describes what to do when encountering tweet.
-
         Inputs: data 
         '''
         try:
