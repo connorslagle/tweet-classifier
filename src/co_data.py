@@ -137,7 +137,7 @@ if __name__ == '__main__':
     for k, v in sorted(new_dict.values(), reverse=True):
         sorted_dict[k] = v
 
-    sorted_lst = sorted(new_dict, key=new_dict.__getitem__, reverse=True) 
+    sorted_keys_by_desc_value = sorted(new_dict, key=new_dict.__getitem__, reverse=True) 
 
     # from sklearn.feature_extraction.text import CountVectorizer
 
