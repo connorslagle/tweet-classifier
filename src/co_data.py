@@ -3,7 +3,6 @@ import numpy as np
 import os
 import re
 import matplotlib.pyplot as plt
-
 from wordcloud import WordCloud
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -61,10 +60,13 @@ class TextCleaner():
         
         self.emoji_list = re.sub(r'\w','',without_re_groups).split()     # encode with utf-8
 
+        without_last_re_group = re.sub(self.re_substitution_groups[4],' ', without_re_groups)
+        words_greater_than_two_char = ' '.join([word for word in without_last_re_group.split() if len(word) >= 2])
+
         if exclude_stopwords:
-            one_space_separated_tweet = ' '.join([word for word in without_re_groups.split() if word not in stopwords])
+            one_space_separated_tweet = ' '.join([word for word in words_greater_than_two_char.split() if word not in stopwords])
         else:
-            one_space_separated_tweet = ' '.join([word for word in without_re_groups.split()])
+            one_space_separated_tweet = ' '.join([word for word in words_greater_than_two_char.split()])
         return one_space_separated_tweet
 
 def make_cloud(ax, pd_series_cleaned_text, state='CO', treatment='2', save_fig = False):
@@ -77,6 +79,10 @@ def make_cloud(ax, pd_series_cleaned_text, state='CO', treatment='2', save_fig =
     plt.savefig(f'../images/{state}_{treatment}_cloud.png',dpi=300)
 
 def to_count_list(input_lst, sorted_by_vals_desc=True):
+    '''
+    Counts words in word list, converts to count dictionary, then outputs
+    words (keys) and counts (vals)
+    '''
     new_dict ={}
     for word in input_lst:
         if word not in new_dict:
@@ -112,8 +118,10 @@ class PlotFormatter():
             y_data = list(temp)
 
         if self.num_subplots == 1:
+            self.ax.set_position([0.15, 0.25, 0.8, 0.6])
             self.ax.bar(x_vals, y_data, tick_label=x_label_list, align='center', alpha=0.75)
             self.ax.set_ylabel(y_label)
+            self.ax.set_ylim((0,0.40))
             self.ax.set_title(title)
             for label in self.ax.get_xticklabels():
                 label.set_rotation(45)
@@ -121,6 +129,7 @@ class PlotFormatter():
         else:
             self.ax[subplot_number].bar(x_vals, y_data, tick_label=x_label_list, align='center', alpha=0.75)
             self.ax[subplot_number].set_ylabel(y_label)
+            self.ax.set_ylim((0,0.40))
             self.ax[subplot_number].set_title(title)
             for label in self.ax[subplot_number].get_xticklabels():
                 label.set_rotation(45)
@@ -128,6 +137,7 @@ class PlotFormatter():
 
     def save_fig(self,saved_figure_name):
         plt.savefig(f'../images/{saved_figure_name}', dpi=300)
+        plt.close(self.fig)
 
 
     
@@ -161,51 +171,31 @@ if __name__ == '__main__':
     select_state = 'co'
     select_treatment = 2
 
-    path_to_json = f'../data/CO/{json_list[select_treatment]}'
-    pipeline = PipelineToPandas()
-    co_3_df = pipeline.spark_df_to_pandas(path_to_json,'co',select_treatment+1)
+    treatment_dict = {0: '@joebiden', 1: '@joebiden & #covid19', 2: '#covid19',
+                      3: '@realdonaldtrump & #covid19', 4: '@realdonaldtrump'}
 
-    # Clean twitter text
-    text_cleaner = TextCleaner()
-    clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x))
-    tweet_emoji = text_cleaner.emoji_list
+    for select_treatment in range(len(json_list)):
+        path_to_json = f'../data/CO/{json_list[select_treatment]}'
+        pipeline = PipelineToPandas()
+        co_3_df = pipeline.spark_df_to_pandas(path_to_json,select_state,select_treatment+1)
 
-    # # generate wordcloud
-    clean_txt_string = clean_tweet_col.str.cat(sep=' ')
+        # Clean twitter text
+        text_cleaner = TextCleaner()
+        clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x,exclude_stopwords=False))
+        tweet_emoji = text_cleaner.emoji_list
 
-    # wordcloud = WordCloud().generate(clean_txt_string)
-    # fig, ax = plt.subplots(1)
-    # plt.imshow(wordcloud, interpolation='bilinear')
-    # plt.axis("off")
+        # # generate wordcloud
+        clean_txt_string = clean_tweet_col.str.cat(sep=' ')
 
-    # plt.savefig(f'../images/{select_state}_{select_treatment}_cloud2.png',dpi=300)
+        # bar plots of freq words
 
-    # bar plots of freq words
+        clean_word_list = clean_txt_string.split()
 
-    clean_word_list = clean_txt_string.split()
+        keys, vals = to_count_list(clean_word_list)
 
-    keys, vals = to_count_list(clean_word_list)
-
-    plotter = PlotFormatter()
-    plotter.barchart(0,keys[:25],vals[:25],'word relative frequency (a.u.)','Top 25 words')
-    plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
-    # new_dict ={}
-    # for word in clean_word_list:
-    #     if word not in new_dict:
-    #         new_dict[word] = 1
-    #     else:
-    #         new_dict[word] += 1
-    
-    # sorted_dict = {}
-    # for k, v in sorted(new_dict.values(), reverse=True):
-    #     sorted_dict[k] = v
-
-    # sorted_keys_by_desc_value = sorted(new_dict, key=new_dict.__getitem__, reverse=True)
-    
-
-
-    # fig, ax = plt.subplot(1)
-    # ax.bar()
+        plotter = PlotFormatter()
+        plotter.barchart(0,keys[:25],vals[:25],'word relative frequency (a.u.)',f'Top 25 words for {treatment_dict[select_treatment]}')
+        plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
 
     # from sklearn.feature_extraction.text import CountVectorizer
 
