@@ -1,5 +1,10 @@
 # Sensitivity Analysis of VADER Sentiment Analyzer
 
+<p align="center">
+    <img src="images/vader_top.jpg" width='800'/>
+</p>
+
+
 ## Motivation
 VADER (Valence Aware Dictionary and sEntiment Reader) is a rule-based sentiment analysis tool that is commonly used for social-media sentiment analysis. The meat of VADER is provided by two main resources: the VADER sentiment lexicon and the rule-based sentiment analysis engine.
 
@@ -37,7 +42,7 @@ With both of these attributes, VADER claims to perform excellent on predicting s
 
 Outliine:
 
-1. Intro
+1. Intro - done
 2. Explaining the dataset and accumulation method
 3. Explain stack (AWS -> Spark -> Pandas)
 4. Initial look at data: Example tweets

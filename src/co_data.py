@@ -8,6 +8,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction import stop_words
 stopwords = stop_words.ENGLISH_STOP_WORDS
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from pipeline_to_pandas import PipelineToPandas
 from s3_interfacer import BucketInterfacer
 
@@ -29,7 +30,7 @@ def aggregate_data_file(path_to_data_folder='../data', state='CO',treatment=0):
 class TextCleaner():
 
     def __init__(self):
-        self.re_substitution_groups = [r'http\S+', r'&amp; ', r"[@#]", r"[!$%()*+,-./:;<=>?\^_`{|}~]", r'[^a-zA-Z]']
+        self.re_substitution_groups = [r'http\S+', r'&amp; ', r"[@#]", r"[$%()*+,-./:;<=>\^_`{|}~]", r'[^a-zA-Z]']
         self. text_abbrevs = { 'lol': 'laughing out loud', 'bfn': 'bye for now', 'cuz': 'because',
                             'afk': 'away from keyboard', 'nvm': 'never mind', 'iirc': 'if i recall correctly',
                             'ttyl': 'talk to you later', 'imho': 'in my honest opinion', 'brb': 'be right back' }
@@ -139,7 +140,18 @@ class PlotFormatter():
         plt.savefig(f'../images/{saved_figure_name}', dpi=300)
         plt.close(self.fig)
 
+def tweet_col_to_vader_df(tweet_col):
+    '''
+    slow but works
+    '''
+    clean_df = pd.DataFrame()
+    clean_df['tweet'] = tweet_col
 
+    sentiment_keys = ['neg', 'pos', 'neu', 'compound']
+
+    for key in sentiment_keys:
+        clean_df[key] = [analyzer.polarity_scores(tweet)[key] for tweet in clean_df['tweet']]
+    return clean_df
     
 
 if __name__ == '__main__':
@@ -174,29 +186,28 @@ if __name__ == '__main__':
     treatment_dict = {0: '@joebiden', 1: '@joebiden & #covid19', 2: '#covid19',
                       3: '@realdonaldtrump & #covid19', 4: '@realdonaldtrump'}
 
-    for select_treatment in range(len(json_list)):
-        path_to_json = f'../data/CO/{json_list[select_treatment]}'
-        pipeline = PipelineToPandas()
-        co_3_df = pipeline.spark_df_to_pandas(path_to_json,select_state,select_treatment+1)
+    # for select_treatment in range(len(json_list)):
+    path_to_json = f'../data/CO/{json_list[select_treatment]}'
+    pipeline = PipelineToPandas()
+    co_3_df = pipeline.spark_df_to_pandas(path_to_json,select_state,select_treatment+1)
 
-        # Clean twitter text
-        text_cleaner = TextCleaner()
-        clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x,exclude_stopwords=True))
-        tweet_emoji = text_cleaner.emoji_list
+    # Clean twitter text
+    text_cleaner = TextCleaner()
+    clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x,exclude_stopwords=False))
+    tweet_emoji = text_cleaner.emoji_list
 
-        # # generate wordcloud
-        clean_txt_string = clean_tweet_col.str.cat(sep=' ')
+    # # generate wordcloud
+    clean_txt_string = clean_tweet_col.str.cat(sep=' ')
 
-        # bar plots of freq words
+    # bar plots of freq words
 
-        clean_word_list = clean_txt_string.split()
+    clean_word_list = clean_txt_string.split()
 
-        keys, vals = to_count_list(clean_word_list)
+    keys, vals = to_count_list(clean_word_list)
 
-        plotter = PlotFormatter()
-        plotter.barchart(0,keys[:25],vals[:25],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment_dict[select_treatment]}, no stopwords')
-        plotter.save_fig(f'{select_state}_{select_treatment}_top25words_nostops.png')
+    plotter = PlotFormatter()
+    plotter.barchart(0,keys[:25],vals[:25],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment_dict[select_treatment]}')
+    plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
 
-    # from sklearn.feature_extraction.text import CountVectorizer
-
-    # tfidf
+    # VADER
+    analyzer = SentimentIntensityAnalyzer()
