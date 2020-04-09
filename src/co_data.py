@@ -3,7 +3,7 @@ import numpy as np
 import os
 import re
 import matplotlib.pyplot as plt
-plt.style.use('fivethirtyeight')
+
 from wordcloud import WordCloud
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -76,7 +76,7 @@ def make_cloud(ax, pd_series_cleaned_text, state='CO', treatment='2', save_fig =
 
     plt.savefig(f'../images/{state}_{treatment}_cloud.png',dpi=300)
 
-def to_count_dict(input_lst, sorted_by_vals_desc=True):
+def to_count_list(input_lst, sorted_by_vals_desc=True):
     new_dict ={}
     for word in input_lst:
         if word not in new_dict:
@@ -86,11 +86,51 @@ def to_count_dict(input_lst, sorted_by_vals_desc=True):
     
     if sorted_by_vals_desc:
         keys = sorted(new_dict, key=new_dict.__getitem__, reverse=True)
-        values = [new_dict[elem] for elem in sorted_by_vals_desc]
+        values = [new_dict[elem] for elem in keys]
     else:
-        keys, values = new_dict.items()
+        keys = list(new_dict.keys())
+        values = list(new_dict.values())
 
-    return [keys, values]
+    return keys, values
+
+class PlotFormatter():
+    '''
+    Formats and plots different plots (bar chart, sentiment pdfs)
+    '''
+    def __init__(self, subplots=1, figsize=(12,8), style='ggplot'):
+        self.fig, self.ax = plt.subplots(subplots,figsize=figsize)
+        self.num_subplots = subplots
+        plt.style.use(style)
+        plt.rcParams.update({'font.size': 18})
+
+    def barchart(self, subplot_number, x_label_list, y_data, y_label, title, normalize=True):
+        x_vals = np.arange(len(x_label_list))
+        
+        if normalize:
+            temp = np.array(y_data)
+            temp = temp/np.sum(temp)
+            y_data = list(temp)
+
+        if self.num_subplots == 1:
+            self.ax.bar(x_vals, y_data, tick_label=x_label_list, align='center', alpha=0.75)
+            self.ax.set_ylabel(y_label)
+            self.ax.set_title(title)
+            for label in self.ax.get_xticklabels():
+                label.set_rotation(45)
+                label.set_ha('right')
+        else:
+            self.ax[subplot_number].bar(x_vals, y_data, tick_label=x_label_list, align='center', alpha=0.75)
+            self.ax[subplot_number].set_ylabel(y_label)
+            self.ax[subplot_number].set_title(title)
+            for label in self.ax[subplot_number].get_xticklabels():
+                label.set_rotation(45)
+                label.set_ha('right')
+
+    def save_fig(self,saved_figure_name):
+        plt.savefig(f'../images/{saved_figure_name}', dpi=300)
+
+
+    
 
 if __name__ == '__main__':
     '''
@@ -104,7 +144,7 @@ if __name__ == '__main__':
 
     co_agg_file = '../data/co_aggregate.json'
     twitter_search_term_dict = {1: ['@joebiden'], 2: ['#COVID19' '@joebiden'], 3: ['#COVID19'],
-                                4: ['#COVID19' '@realdonaldtrump'], 5: ['@realdonaldtrump']}
+                                4: ['#COVID19' '@   realdonaldtrump'], 5: ['@realdonaldtrump']}
 
     
     path_to_data_folder = '../data'
@@ -144,23 +184,28 @@ if __name__ == '__main__':
 
     clean_word_list = clean_txt_string.split()
 
-    new_dict ={}
-    for word in clean_word_list:
-        if word not in new_dict:
-            new_dict[word] = 1
-        else:
-            new_dict[word] += 1
+    keys, vals = to_count_list(clean_word_list)
+
+    plotter = PlotFormatter()
+    plotter.barchart(0,keys[:25],vals[:25],'word relative frequency (a.u.)','Top 25 words')
+    plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
+    # new_dict ={}
+    # for word in clean_word_list:
+    #     if word not in new_dict:
+    #         new_dict[word] = 1
+    #     else:
+    #         new_dict[word] += 1
     
-    sorted_dict = {}
-    for k, v in sorted(new_dict.values(), reverse=True):
-        sorted_dict[k] = v
+    # sorted_dict = {}
+    # for k, v in sorted(new_dict.values(), reverse=True):
+    #     sorted_dict[k] = v
 
-    sorted_keys_by_desc_value = sorted(new_dict, key=new_dict.__getitem__, reverse=True)
+    # sorted_keys_by_desc_value = sorted(new_dict, key=new_dict.__getitem__, reverse=True)
     
 
 
-    fig, ax = plt.subplot(1)
-    ax.bar()
+    # fig, ax = plt.subplot(1)
+    # ax.bar()
 
     # from sklearn.feature_extraction.text import CountVectorizer
 
