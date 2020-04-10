@@ -5,8 +5,6 @@ import os
 class BucketInterfacer():
     '''
     Class that interfaces with my local environment and S3 for my AWS account.
-    Should reorg - put bucket in __init__ to call interfacer relative to selected bucket (4/7/20 9am cjs)
-    set AWS creds to env variable in .bashrc for use in spark
     '''
     def __init__(self, bucket):
         self.boto3_connection = boto3.resource('s3')
@@ -20,14 +18,7 @@ class BucketInterfacer():
 
     def send_to_bucket(self, s3_folder='', file_lst=[], path_to_dir='../data/', is_file=True):
         '''
-        Method to send file (or directory of files) to s3 bucket.
-
-        Inputs:
-            - file_lst list(<str>), list of strings (even if len=0) to send to s3 bucket
-            - path_to_dir <str>, relative path to local directory
-            - is_file <bool>, sending single file or not
-        
-        Outputs: NA            
+        Method to send file (or directory of files) to s3 bucket.     
         '''
         file_lst_in_dir = os.listdir(path_to_dir)
         try:

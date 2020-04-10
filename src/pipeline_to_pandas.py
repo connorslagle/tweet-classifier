@@ -4,7 +4,7 @@ from pyspark.sql.functions import lit
 
 class PipelineToPandas():
     '''
-    Class that performs ETL from datalake json file to structured pandas dataframe.
+    Class that performs ETL from datalake json file to structured pandas dataframe, then to local csv.
     '''
     def __init__(self):
         self.spark = (ps.sql.SparkSession
