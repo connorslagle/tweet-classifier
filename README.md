@@ -176,33 +176,34 @@ Text preprocessing is a crucial step when performing any king of machine learnin
 I repeated the bootstrapped analysis above but with incrementally increasing the amount of text pre-processing. I wanted to see if the VADER results change for the better after pre-processing.
 
 <p align="center">
-    <img src="images/CO_0_mean_negative_boxplot.png" width='350'/>
-    <img src="images/CO_2_mean_negative_boxplot.png" width='350'/>
-    <img src="images/CO_4_mean_negative_boxplot.png" width='350'/>
+    <img src="images/CO_0_mean_negative_boxplot.png" width='300'/>
+    <img src="images/CO_2_mean_negative_boxplot.png" width='300'/>
+    <img src="images/CO_4_mean_negative_boxplot.png" width='300'/>
 </p>
 <p align="center">
-    <img src="images/CO_0_mean_positive_boxplot.png" width='350'/>
-    <img src="images/CO_2_mean_positive_boxplot.png" width='350'/>
-    <img src="images/CO_4_mean_positive_boxplot.png" width='350'/>
+    <img src="images/CO_0_mean_positive_boxplot.png" width='300'/>
+    <img src="images/CO_2_mean_positive_boxplot.png" width='300'/>
+    <img src="images/CO_4_mean_positive_boxplot.png" width='300'/>
 </p>
 <p align="center">
-    <img src="images/CO_0_mean_compound_boxplot.png" width='350'/>
-    <img src="images/CO_2_mean_compound_boxplot.png" width='350'/>
-    <img src="images/CO_4_mean_compound_boxplot.png" width='350'/>
+    <img src="images/CO_0_mean_compound_boxplot.png" width='300'/>
+    <img src="images/CO_2_mean_compound_boxplot.png" width='300'/>
+    <img src="images/CO_4_mean_compound_boxplot.png" width='300'/>
 </p>
 
 
+
 <p align="center">
-    <img src="images/CO_1_mean_negative_boxplot.png" width='350'/>
-    <img src="images/CO_3_mean_negative_boxplot.png" width='350'/>
+    <img src="images/CO_1_mean_negative_boxplot.png" width='400'/>
+    <img src="images/CO_3_mean_negative_boxplot.png" width='400'/>
 </p>
 <p align="center">
-    <img src="images/CO_1_mean_positive_boxplot.png" width='350'/>
-    <img src="images/CO_3_mean_positive_boxplot.png" width='350'/>
+    <img src="images/CO_1_mean_positive_boxplot.png" width='400'/>
+    <img src="images/CO_3_mean_positive_boxplot.png" width='400'/>
 </p>
 <p align="center">
-    <img src="images/CO_1_mean_compound_boxplot.png" width='350'/>
-    <img src="images/CO_3_mean_compound_boxplot.png" width='350'/>
+    <img src="images/CO_1_mean_compound_boxplot.png" width='400'/>
+    <img src="images/CO_3_mean_compound_boxplot.png" width='400'/>
 </p>
 
 
