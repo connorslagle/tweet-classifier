@@ -158,7 +158,7 @@ For each of these keyword combinations, ~8,000 tweets were collected in a 6 day 
 From s3, the tweets were queried for select fields and stored in local a pandas DataFrame prior to processed. The structure of the flattened pandas DataFrame is shown below:
 
 <p align="center">
-    <img src="images/pandasdf.png" width='400'/>
+    <img src="images/dark_df.png" width='400'/>
 </p>
 
 Most of the fields mentioned above were gathered for future analysis; fields relevant to analysis sentiment are **tweet_text, state, and search_term_key,** all of which are string datatype.
@@ -166,7 +166,7 @@ Most of the fields mentioned above were gathered for future analysis; fields rel
 ## Data Pipeline
 
 <p align="center">
-    <img src="images/tweet_path.png" width='500'/>
+    <img src="images/tweet_path.png" width='600'/>
 </p>
 
 
