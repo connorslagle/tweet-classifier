@@ -59,7 +59,7 @@ The topic I chose to investigate is in the back of everyone's mind at the moment
 4. @realdonaldtrump & #COVID19
 5. @realdonaldtrump
 
-For each of these keyword combinations, ~8,000 tweets were collected in a 6 day period from 3/31/2020 to 4/6/2020 for each region; totaling ~ 120,000 tweets. The tweets were stored in their natural, unstructured state and aggregated. Tweets are naturally structured as nested json files with many attributes. Here's an example of a relatively short tweet:
+For each of these keyword combinations, ~8,000 tweets were collected in a 6 day period from 3/31/2020 to 4/6/2020 for each region; totaling ~ 120,000 tweets. Due to the request rate limitation of the Twitter API, I rotated through keywords after collecting ~1,000 tweets. The tweets were stored in their natural, unstructured state and aggregated. Tweets are naturally structured as nested json files with many attributes. Here's an example of a relatively short tweet:
 
 ```python
     {'contributors': None,
@@ -165,16 +165,15 @@ Most of the fields mentioned above were gathered for future analysis; fields rel
 
 ## Data Pipeline
 
+
+
 <p align="center">
     <img src="images/tweet_path.png" width='600'/>
 </p>
 
+As mentioned in the introduction, throughout this project I wanted to simulate a 'big data' type corporate data science project. As such the data stack I decided on is depicted in the figure above. 
 
-<!-- <p align="center">
-    <img src="images/joe.png" width='300' />
-    <img src="images/covid2.png" width='300' />
-    <img src="images/realtrump.png" width='300' />
-</p> -->
+First, the tweets were streamed to a remote EC2 instance (t2.micro) 
 
 ## Raw Tweets
 
