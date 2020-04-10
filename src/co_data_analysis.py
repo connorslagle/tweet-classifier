@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn-darkgrid')
 plt.rcParams.update({'font.size': 20})
 
-import plotting_functions
-import TextCleaner
+from plotting_functions import make_boxplot, save_fig
+from TextCleaner import TextCleaner
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 def to_count_list(input_lst, sorted_by_vals_desc=True):
@@ -107,63 +107,63 @@ if __name__ == '__main__':
     '''
     Plotting fig 1: Raw (unprocessed tweets)
     '''
-    fig, ax = plt.subplots(3,1, figsize=(10,22), sharex=True)
+    # fig, ax = plt.subplots(3,1, figsize=(10,22), sharex=True)
 
-    fig_pos_lst = [[0.25, 0.67, 0.7, 0.30],
-                  [0.25, 0.35, 0.7, 0.30],
-                  [0.25, 0.03, 0.7, 0.30]]
-
-
-    for i, treatment in enumerate(['@joebiden', '#COVID19', '@realdonaldtrump']):
-        total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
-        total_tweet_list = total_tweet_string.split()
-        words, counts = to_count_list(total_tweet_list)
-        if i == 2:
-            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
-        else:
-            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
-    save_fig(f'{state}_single_word_raw_bar.png')
-
-    fig, ax = plt.subplots(2,1, figsize=(10,22), sharex=True)
-
-    fig_pos_lst = [[0.10, 0.51, 0.8, 0.30],
-                  [0.10, 0.18, 0.8, 0.30]]
+    # fig_pos_lst = [[0.25, 0.67, 0.7, 0.30],
+    #               [0.25, 0.35, 0.7, 0.30],
+    #               [0.25, 0.03, 0.7, 0.30]]
 
 
-    for i, treatment in enumerate(['@joebiden + #COVID19', '@realdonaldtrump + #COVID19']):
-        total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
-        total_tweet_list = total_tweet_string.split()
-        words, counts = to_count_list(total_tweet_list)
-        if i == 1:
-            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
-        else:
-            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
-    save_fig(fig,f'{state}_multi_word_raw_bar.png')
+    # for i, treatment in enumerate(['@joebiden', '#COVID19', '@realdonaldtrump']):
+    #     total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
+    #     total_tweet_list = total_tweet_string.split()
+    #     words, counts = to_count_list(total_tweet_list)
+    #     if i == 2:
+    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
+    #     else:
+    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
+    # save_fig(f'{state}_single_word_raw_bar.png')
+
+    # fig, ax = plt.subplots(2,1, figsize=(10,22), sharex=True)
+
+    # fig_pos_lst = [[0.10, 0.51, 0.8, 0.30],
+    #               [0.10, 0.18, 0.8, 0.30]]
+
+
+    # for i, treatment in enumerate(['@joebiden + #COVID19', '@realdonaldtrump + #COVID19']):
+    #     total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
+    #     total_tweet_list = total_tweet_string.split()
+    #     words, counts = to_count_list(total_tweet_list)
+    #     if i == 1:
+    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
+    #     else:
+    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
+    # save_fig(fig,f'{state}_multi_word_raw_bar.png')
 
     '''
     VADER analysis on RAW tweets, Figure 2
     '''
     analyzer = SentimentIntensityAnalyzer()
 
-    for i, treatment in enumerate(treatment_dict.values()):
-        fig, ax = plt.subplots(1,figsize=(8,6))
-        vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
-        make_hist(ax, treatment, vader_df['compound'], (0,4000), 'Compound Sentiment', (-1, 1))
-        save_fig(fig, f'{state}_{i}_raw_compound_sentiment.png')
+    # for i, treatment in enumerate(treatment_dict.values()):
+    #     fig, ax = plt.subplots(1,figsize=(8,6))
+    #     vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
+    #     make_hist(ax, treatment, vader_df['compound'], (0,4000), 'Compound Sentiment', (-1, 1))
+    #     save_fig(fig, f'{state}_{i}_raw_compound_sentiment.png')
 
     '''
     Bootstrap raw tweets, Figure 3
     '''
-    fig, ax = plt.subplots(1,figsize=(8,6))
-    for i, treatment in enumerate(treatment_dict.values()):
+    # fig, ax = plt.subplots(1,figsize=(8,6))
+    # for i, treatment in enumerate(treatment_dict.values()):
 
-        vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
+    #     vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
 
-        bootstrap_samples = bootstrap(vader_df['compound'],resamples=1000)
-        bootstrap_sample_means = list(map(np.mean, bootstrap_samples))
+    #     bootstrap_samples = bootstrap(vader_df['compound'],resamples=1000)
+    #     bootstrap_sample_means = list(map(np.mean, bootstrap_samples))
 
-        make_hist(ax, treatment, bootstrap_sample_means, (0,120), 'Mean Compound Sentiment', (-1, 1))
-    save_fig(fig, f'{state}_all_raw__mean_compound_sentiment.png')
+    #     make_hist(ax, treatment, bootstrap_sample_means, (0,120), 'Mean Compound Sentiment', (-1, 1))
+    # save_fig(fig, f'{state}_all_raw__mean_compound_sentiment.png')
 
     '''
     preprocess tweets, perform VADER analysis, and make sensitivity boxplots Figures 4,5
@@ -172,10 +172,12 @@ if __name__ == '__main__':
     num_resamples = 1000
     total_cleaning_steps = range(1,6)
 
-    for i, treatment in enumerate(treatment_dict.values()):
+    new_lst = ['#COVID19']
+
+    for treatment in new_lst:
         two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, 'compound', num_resamples, total_cleaning_steps)
 
         # make boxplots
         fig, ax = plt.subplots(1,figsize=(8,6))
-        make_boxplot(ax,two_dim_array,(0,0.15),total_cleaning_steps,'Mean Negative Sentiment',title=f'Text Cleaning Sensitivity for\n{treatment}')
-        save_fig(f'{state}_{i}_mean_negative_boxplot.png')
+        make_boxplot(ax,two_dim_array,(-0.045,0.055),total_cleaning_steps,'Mean Compound Sentiment',title=f'Text Cleaning Sensitivity for\n{treatment}')
+        save_fig(fig,f'{state}_2_mean_compound_boxplot.png')
