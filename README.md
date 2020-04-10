@@ -57,7 +57,7 @@ I wanted to simulate a data science project from conceptualization to data wrang
 
 ## Tweet Collection
 
-The topic I chose to investigate is in the back of everyone's mind at the moment; the COVID-19 pandemic. Being a national emergency, I figured people on twitter would express emotion towards their political leaders concerning the topic. So, tweets were collected using Twitter's free API and the [Tweepy](http://www.tweepy.org/) python library in three distinct geopolitical regions in the contigous United States: Oregon, Colorado, and Arkansas. These regions were chosen via their representation in the U.S. Senate; Oregon - Liberal, Colorado - Bipartisan, and Arkansas - Conservative. Keeping with the political focus, tweets were streamed with the following keyword combinations:
+The topic I chose to investigate is in the back of everyone's mind at the moment; the COVID-19 pandemic. Being a national emergency, I figured people on twitter would express emotion towards their political leaders concerning the topic. So, tweets were collected using Twitter's free API and the [Tweepy](http://www.tweepy.org/) python library in three distinct geopolitical regions in the contigous United States: Oregon, Colorado, and Arkansas. These regions were chosen via their representation in the [U.S. Senate](https://en.wikipedia.org/wiki/United_States_Senate); Oregon - Liberal, Colorado - Bipartisan, and Arkansas - Conservative. Keeping with the political focus, tweets were streamed with the following keyword combinations:
 
 1. @joebiden
 2. @joebiden & #COVID19
@@ -221,8 +221,16 @@ It seems like the majority of the change in compound sentiment occures when remo
 
 In conclusion, the VADER algorithm is impacted by text preprocessing techniques. The scope of this impact is for another project, but it is important to realize how you preprocess data can have remifications!
 
+In the future, I would like to continue this analysis across state lines and dive deeper into the tweets themselves to manually guage the sentiment of the tweets myself!
+
+Hope you enjoyed the read.
+
+Thank you - Connor
+
 # References:
 1. [VADER github](https://github.com/cjhutto/vaderSentiment)
 2. [VADER research publication](http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf)
 3. [Tweepy](http://www.tweepy.org/)
-4. [Apache SparkSQL](https://spark.apache.org/)
+4. [U.S. Senate](https://en.wikipedia.org/wiki/United_States_Senate)
+5. [Apache SparkSQL](https://spark.apache.org/)
+6. [pandas](https://pandas.pydata.org/)
