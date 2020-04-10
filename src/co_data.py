@@ -14,7 +14,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 class TextCleaner():
 
     def __init__(self):
-        self.re_substitution_groups = [r'http\S+', r'&amp; ', r"[@#]", r"[$%()*+,-./:;<=>\^_`{|}~]", r'[^a-zA-Z]']
+        self.re_substitution_groups = [r'http\S+', r'&amp; ', r"[@#]", r"[!?$%()*+,-./:;<=>\^_`{|}~]"]
         self. text_abbrevs = { 'lol': 'laughing out loud', 'bfn': 'bye for now', 'cuz': 'because',
                             'afk': 'away from keyboard', 'nvm': 'never mind', 'iirc': 'if i recall correctly',
                             'ttyl': 'talk to you later', 'imho': 'in my honest opinion', 'brb': 'be right back' }
@@ -25,28 +25,47 @@ class TextCleaner():
                              "mustn't":"must not"}
 
 
-    def clean_tweets(self, df_tweet_text, exclude_stopwords=False):
+    def clean_tweets(self, df_tweet_text, last_clean_step=5, exclude_stopwords=False):
         '''
         This function will clean the text of tweets:
         order:
         1. lowercase
         2. change txt abbreviations
         3. change grammar abbreviation
-        4. remove non-text characters
-        5. eliminate extra space
+        4. remove punctuation
+        5. remove special (utf-8) characters
         '''
-        # print(test)
-        lower = df_tweet_text.lower()
-        no_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
-        no_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in no_text_abbrevs.split()])
-        
-        joined_re_groups = '|'.join([group for group in self.re_substitution_groups[:3]])
-        without_re_groups = re.sub(joined_re_groups,' ',no_grammar_abbrevs)
-        
-        self.emoji_list = re.sub(r'\w','',without_re_groups).split()     # encode with utf-8
+        if last_clean_step == 1:
+            clean_text = df_tweet_text.lower()
 
-        without_last_re_group = re.sub(self.re_substitution_groups[4],' ', without_re_groups)
-        words_greater_than_two_char = ' '.join([word for word in without_last_re_group.split() if len(word) >= 2])
+        elif last_clean_step == 2:
+            lower = df_tweet_text.lower()
+            clean_text = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
+        
+        elif last_clean_step == 3:
+            lower = df_tweet_text.lower()
+            without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
+            clean_text = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
+        
+        elif last_clean_step == 4:
+            lower = df_tweet_text.lower()
+            without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
+            without_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
+            
+            joined_re_groups = '|'.join([group for group in self.re_substitution_groups])
+            clean_text = re.sub(joined_re_groups,' ',without_grammar_abbrevs)
+        
+        elif last_clean_step == 5:
+            lower = df_tweet_text.lower()
+            without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
+            without_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
+            
+            joined_re_groups = '|'.join([group for group in self.re_substitution_groups])
+            without_re_groups = re.sub(joined_re_groups,' ',without_grammar_abbrevs)
+
+            clean_text = re.sub(r'\W',' ',without_re_groups)
+        
+        words_greater_than_two_char = ' '.join([word for word in clean_text.split() if len(word) >= 2])
 
         if exclude_stopwords:
             one_space_separated_tweet = ' '.join([word for word in words_greater_than_two_char.split() if word not in stopwords])
@@ -111,21 +130,17 @@ def make_hor_barchart(ax, set_position, x_label_list, y_data, y_label, title, no
     #     label.set_rotation(45)
     #     label.set_ha('right')
 
-def make_hist(self, line_name, y_data, x_label, subplot_number=0, num_bins=50, normalize=True, cumulative=False):
-    # x_vals = np.linspace(x_start_stop[0], x_start_stop[1], 1000)
 
-    if self.num_subplots == 1:
-        self.ax.hist(y_data, bins = num_bins, density=normalize, cumulative=cumulative, label=line_name)
-        self.ax.set_ylabel('pmf' if normalize else 'count')
-        # self.ax.set_ylim((0, 1) if cumulative else (0,30))
-        self.ax.legend()
-        self.ax.set_xlim((-0.2, 0.2))
-        self.ax.set_xlabel(x_label)
-    else:
-        self.ax[subplot_number].hist(y_data, bins = num_bins, density=normalize, cumulative=cumulative)
-        self.ax[subplot_number].set_ylabel('pmf' if normalize else 'count')
-        self.ax[subplot_number].set_ylim((0, 30))
-        self.ax[subplot_number].set_xlabel(x_label)
+def make_hist(ax, line_name, y_data, y_limit, x_label, x_limit, num_bins=50, normalize=False, cumulative=False):
+    ax.hist(y_data, bins = num_bins, density=normalize, cumulative=cumulative, label=line_name)
+    ax.set_ylabel('pmf' if normalize else 'Count')
+    ax.set_ylim((0, 1) if cumulative else y_limit)
+    ax.legend()
+    ax.set_xlim(x_limit)
+    ax.set_xlabel(x_label)
+
+def make_boxplot(ax, df_values, label_lst):
+    pass
 
 
 def save_fig(saved_figure_name):
@@ -136,14 +151,14 @@ def tweet_col_to_vader_df(analyzer_object, tweet_col):
     '''
     slow but works
     '''
-    clean_df = pd.DataFrame()
-    clean_df['tweet'] = tweet_col
+    vader_df = pd.DataFrame()
+    vader_df['tweet'] = tweet_col
 
     sentiment_keys = ['neg', 'pos', 'neu', 'compound']
 
     for key in sentiment_keys:
-        clean_df[key] = [analyzer_object.polarity_scores(tweet)[key] for tweet in clean_df['tweet']]
-    return clean_df
+        vader_df[key] = [analyzer_object.polarity_scores(str(tweet))[key] for tweet in vader_df['tweet']]
+    return vader_df
     
 def bootstrap(x, resamples=1000):
     """Draw bootstrap resamples from the array x.
@@ -169,17 +184,10 @@ def bootstrap(x, resamples=1000):
 
     return bootstrap_samples
 
-def bootstrap_ci(sample, stat_function=np.mean, resamples=1000, ci=95):
-
-    bootstrap_samples = bootstrap(sample,resamples=resamples)
-
-    bootstrap_sample_means = list(map(stat_function, bootstrap_samples))
-
-    low_bound = np.percentile(bootstrap_sample_means, (100-ci)/2)
-    upper_bound = np.percentile(bootstrap_sample_means, (100+ci)/2)
-    ci_bounds = [low_bound, upper_bound]
-
 if __name__ == '__main__':
+    '''
+    Imports all csv files for given state for analysis.
+    '''
     state = 'CO'
     treatment_dict = {1: '@joebiden', 2: '@joebiden + #COVID19', 3: '#COVID19',
                       4: '@realdonaldtrump + #COVID19', 5: '@realdonaldtrump'}
@@ -194,39 +202,67 @@ if __name__ == '__main__':
 
     colorado_df = pd.DataFrame.from_dict(colorado_dict)
 
-    fig, ax = plt.subplots(3,1, figsize=(10,22), sharex=True)
+    '''
+    Plotting fig 1: Raw (unprocessed tweets)
+    '''
+    # fig, ax = plt.subplots(3,1, figsize=(10,22), sharex=True)
 
-    fig_pos_lst = [[0.25, 0.67, 0.7, 0.30],
-                  [0.25, 0.35, 0.7, 0.30],
-                  [0.25, 0.03, 0.7, 0.30]]
+    # fig_pos_lst = [[0.25, 0.67, 0.7, 0.30],
+    #               [0.25, 0.35, 0.7, 0.30],
+    #               [0.25, 0.03, 0.7, 0.30]]
 
-    # ax = ax.flatten()
-    for i, treatment in enumerate(['@joebiden', '#COVID19', '@realdonaldtrump']):
-        total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
-        total_tweet_list = total_tweet_string.split()
-        words, counts = to_count_list(total_tweet_list)
-        if i == 2:
-            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
-        else:
-            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
-    save_fig(f'{state}_single_word_raw_bar.png')
 
-    fig, ax = plt.subplots(2,1, figsize=(10,22), sharex=True)
+    # for i, treatment in enumerate(['@joebiden', '#COVID19', '@realdonaldtrump']):
+    #     total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
+    #     total_tweet_list = total_tweet_string.split()
+    #     words, counts = to_count_list(total_tweet_list)
+    #     if i == 2:
+    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
+    #     else:
+    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
+    # save_fig(f'{state}_single_word_raw_bar.png')
 
-    fig_pos_lst = [[0.10, 0.51, 0.8, 0.30],
-                  [0.10, 0.18, 0.8, 0.30]]
+    # fig, ax = plt.subplots(2,1, figsize=(10,22), sharex=True)
 
-    # ax = ax.flatten()
-    for i, treatment in enumerate(['@joebiden + #COVID19', '@realdonaldtrump + #COVID19']):
-        total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
-        total_tweet_list = total_tweet_string.split()
-        words, counts = to_count_list(total_tweet_list)
-        if i == 1:
-            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
-        else:
-            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
-    save_fig(f'{state}_multi_word_raw_bar.png')
+    # fig_pos_lst = [[0.10, 0.51, 0.8, 0.30],
+    #               [0.10, 0.18, 0.8, 0.30]]
 
+
+    # for i, treatment in enumerate(['@joebiden + #COVID19', '@realdonaldtrump + #COVID19']):
+    #     total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
+    #     total_tweet_list = total_tweet_string.split()
+    #     words, counts = to_count_list(total_tweet_list)
+    #     if i == 1:
+    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
+    #     else:
+    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
+    # save_fig(f'{state}_multi_word_raw_bar.png')
+
+    '''
+    VADER analysis on RAW tweets
+    '''
+    analyzer = SentimentIntensityAnalyzer()
+
+    # for i, treatment in enumerate(treatment_dict.values()):
+    #     fig, ax = plt.subplots(1,figsize=(8,6))
+    #     vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
+    #     make_hist(ax, treatment, vader_df['compound'], (0,4000), 'Compound Sentiment', (-1, 1))
+    #     save_fig(f'{state}_{i}_raw_compound_sentiment.png')
+
+    '''
+    Bootstrap raw tweets
+    '''
+
+    fig, ax = plt.subplots(1,figsize=(8,6))
+    for i, treatment in enumerate(treatment_dict.values()):
+
+        vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
+
+        bootstrap_samples = bootstrap(vader_df['compound'],resamples=1000)
+        bootstrap_sample_means = list(map(np.mean, bootstrap_samples))
+
+        make_hist(ax, treatment, bootstrap_sample_means, (0,120), 'Mean Compound Sentiment', (-1, 1))
+    save_fig(f'{state}_all_raw__mean_compound_sentiment.png')
     # for select_treatment in range(len(json_list)):
 
     #     # Clean twitter text
@@ -234,20 +270,9 @@ if __name__ == '__main__':
     #     clean_tweet_col = co_3_df['tweet_text'].apply(lambda x: text_cleaner.clean_tweets(x,exclude_stopwords=False))
     #     tweet_emoji = text_cleaner.emoji_list
 
-    #     # # generate wordcloud
-    #     clean_txt_string = clean_tweet_col.str.cat(sep=' ')
-
-    #     # bar plots of freq words
-
-    #     clean_word_list = clean_txt_string.split()
-
-    #     keys, vals = to_count_list(clean_word_list)
-
-        
-    #     # plotter.make_barchart(0,keys[:25],vals[:25],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment_dict[select_treatment]}')
-    #     # plotter.save_fig(f'{select_state}_{select_treatment}_top25words.png')
 
     #     # VADER
+
 
     #     clean_df = tweet_col_to_vader_df(co_3_df['tweet_text'])
 

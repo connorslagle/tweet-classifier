@@ -183,6 +183,21 @@ Most of the fields mentioned above were gathered for future analysis; fields rel
     <img src="images/CO_multi_word_raw_bar.png" width='300'/>
 </p>
 
+<p align="center">
+    <img src="images/CO_0_raw_compound_sentiment.png" width='300'/>
+    <img src="images/CO_2_raw_compound_sentiment.png" width='300'/>
+    <img src="images/CO_4_raw_compound_sentiment.png" width='300'/>
+</p>
+
+<p align="center">
+    <img src="images/CO_all_raw__mean_compound_sentiment.png" width='300'/>
+    <img src="images/CO_all_raw__mean_compound_sentiment_zoom.png" width='300'/>
+</p>
+
+## Tweet Preprocessing
+
+
+
 Outliine:
 
 1. Intro - done
@@ -205,25 +220,6 @@ Outliine:
 9. MVP+: do 8 for OR/AR
 10. Conclusion
 11. references
-
-<p align="center">
-    <img src="images/co_0_top25words.png" width='600' />
-</p>
-<p align="center">
-    <img src="images/co_2_top25words.png" width='600' />
-</p>
-<p align="center">
-    <img src="images/co_4_top25words.png" width='600' />
-</p>
-
-
-
-<p align="center">
-    <img src="images/co_1_top25words.png" width='600' />
-</p>
-<p align="center">
-    <img src="images/co_3_top25words.png" width='600' />
-</p>
 
 
 # References:
