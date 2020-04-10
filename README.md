@@ -12,6 +12,10 @@
 2. [The Dataset](#The-Dataset)
 3. [Exploratory Data Analysis](#Exploratory-Data-Analysis)
 4. [The VADER Algorithm](#The-VADER-Algorithm)
+5. [Bootstrapping the Data](##Bootstrapping-The-Data)
+6. [Sensitivity of Pre-processing](#Sensitivity-of-Pre-processing)
+7. [Conclusion](#Conclusion)
+8. [References](#References)
 
 
 # Motivation
@@ -53,7 +57,7 @@ I wanted to simulate a data science project from conceptualization to data wrang
 
 ## Tweet Collection
 
-The topic I chose to investigate is in the back of everyone's mind at the moment; the COVID-19 pandemic. Being a national emergency, I figured people on twitter would express emotion towards their political leaders concerning the topic. So, tweets were collected using Twitter's free API and the [Tweepy](http://www.tweepy.org/) python library in three distinct geopolitical regions in the contigous United States: Oregon, Colorado, and Arkansas. These regions were chosen via their representation in the U.S. Senate; Oregon - Liberal, Colorado - Bipartisan, and Arkansas - Conservative. Keeping with the political focus, tweets were streamed with the following keyword combinations:
+The topic I chose to investigate is in the back of everyone's mind at the moment; the COVID-19 pandemic. Being a national emergency, I figured people on twitter would express emotion towards their political leaders concerning the topic. So, tweets were collected using Twitter's free API and the [Tweepy](http://www.tweepy.org/) python library in three distinct geopolitical regions in the contigous United States: Oregon, Colorado, and Arkansas. These regions were chosen via their representation in the [U.S. Senate](https://en.wikipedia.org/wiki/United_States_Senate); Oregon - Liberal, Colorado - Bipartisan, and Arkansas - Conservative. Keeping with the political focus, tweets were streamed with the following keyword combinations:
 
 1. @joebiden
 2. @joebiden & #COVID19
@@ -142,16 +146,39 @@ From the examples, this algorithm should fair pretty well with out data - let's 
 
 Figure 2. Histograms of VADER Compound Sentiment by single-word search. Compound sentiment is scaled from [-1, 1]. It's calculated by weighting the positive sentiment, negative sentiment and neutral sentiment proportions along with corrections for phrases.
 
-The
+From the above figure, there seem to be a very large number tweets that have close to zero compound sentiment. Of those tweets that are laden with sentiment - they are bifurcated into eith positive or negative. . Not very helpful when trying to analyze sentitivity. 
+
+# Bootstrapping The Data
+
+The initial data seemed kind of messy. I chose to bootstrap sample the VADER scores to try to get more infrmation out of it. 
 
 <p align="center">
-    <img src="images/CO_all_raw__mean_compound_sentiment.png" width='300'/>
-    <img src="images/CO_all_raw__mean_compound_sentiment_zoom.png" width='300'/>
+    <img src="images/CO_all_raw__mean_compound_sentiment.png" width='550'/>
 </p>
 
-## Tweet Preprocessing
+<p align="center">
+    <img src="images/CO_all_raw__mean_compound_sentiment_zoom.png" width='550'/>
+</p>
 
-### Single Search Term Sensitivity
+Success!! Although the distribution of compound sentiment by itself was uninteresting - bootstrapping our sample allowed us to see differences between the groups. 
+
+The overall difference in the sample means is relatively small compared to the scale range; however, when zooming in the difference is stark.
+
+The single-term search datasets scored well below the double-term search datasets. Seems like those people who tweet about COVID-19 and their presidential leader are more pleased than the single-term tweeters. 
+
+
+# Sensitivity of Pre-processing
+
+Text preprocessing is a crucial step when performing any king of machine learning (ML) task. There are many ways to clean text, but traditionally they boil down to these:
+
+1. Lowercase the text
+2. Eliminate cultural abbreviations
+4. Eliminate grammatical abbreviations
+4. Remove punctuation
+5. Remove non-text characters
+
+I repeated the bootstrapped analysis above but with incrementally increasing the amount of text pre-processing. I wanted to see if the VADER results change for the better after pre-processing.
+
 <p align="center">
     <img src="images/CO_0_mean_negative_boxplot.png" width='300'/>
     <img src="images/CO_2_mean_negative_boxplot.png" width='300'/>
@@ -168,46 +195,42 @@ The
     <img src="images/CO_4_mean_compound_boxplot.png" width='300'/>
 </p>
 
+In the above Figure, search terms are varied with columns and VADER metric is varied with rows. First thing I noticed was the lack of overall change in sentiment parameter with increasing text preprocessing. However, the relative change is noticable - especially on the distribution of sample means.
+
+For example, it seems both Joe Biden and Donald Trump have higher negative AND positive sentiment proportions on average; but, both of their compound sentiment scores decreased.  
+
 
 <p align="center">
-    <img src="images/CO_1_mean_negative_boxplot.png" width='300'/>
-    <img src="images/CO_3_mean_negative_boxplot.png" width='300'/>
+    <img src="images/CO_1_mean_negative_boxplot.png" width='400'/>
+    <img src="images/CO_3_mean_negative_boxplot.png" width='400'/>
 </p>
 <p align="center">
-    <img src="images/CO_1_mean_positive_boxplot.png" width='300'/>
-    <img src="images/CO_3_mean_positive_boxplot.png" width='300'/>
+    <img src="images/CO_1_mean_positive_boxplot.png" width='400'/>
+    <img src="images/CO_3_mean_positive_boxplot.png" width='400'/>
 </p>
 <p align="center">
-    <img src="images/CO_1_mean_compound_boxplot.png" width='300'/>
-    <img src="images/CO_3_mean_compound_boxplot.png" width='300'/>
+    <img src="images/CO_1_mean_compound_boxplot.png" width='400'/>
+    <img src="images/CO_3_mean_compound_boxplot.png" width='400'/>
 </p>
 
-Outliine:
+Following a similar trend - as preprocessing increases negative and positive proportions for dual-word search terms increase; while compound score decreases. 
 
-1. Intro - done
-2. Explaining the dataset and accumulation method
-    twitter streamer
-    tweet filters
-    total size of data
-3. Explain stack (AWS -> Spark -> Pandas)
-    
-    data was collected in EC2 and stored in S3
+It seems like the majority of the change in compound sentiment occures when removing non-character characters - such as emojis. Intuitavely, this makes sense - emoji's are compact expressions of emotion. 
 
-4. Initial look at data: Example tweets
-5. initial word bar chart of word frequency
-6. Explain data cleaning methods (treatments: emoji/non-emoji, stop-words/no stop-words)
-7. VADER sentiment example: positive, neutral, negative
-8. MVP: for CO: Distribution of sentiments for each search term and each treatment combo
-    
-    - 2 graphs (emoji/non-emoji), (stopwords/no): dist of means using bootstraps
+# Conclusion
 
-9. MVP+: do 8 for OR/AR
-10. Conclusion
-11. references
+In conclusion, the VADER algorithm is impacted by text preprocessing techniques. The scope of this impact is for another project, but it is important to realize how you preprocess data can have remifications!
 
+In the future, I would like to continue this analysis across state lines and dive deeper into the tweets themselves to manually guage the sentiment of the tweets myself!
+
+Hope you enjoyed the read.
+
+Thank you - Connor
 
 # References:
 1. [VADER github](https://github.com/cjhutto/vaderSentiment)
 2. [VADER research publication](http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf)
 3. [Tweepy](http://www.tweepy.org/)
-4. [Apache SparkSQL](https://spark.apache.org/)
+4. [U.S. Senate](https://en.wikipedia.org/wiki/United_States_Senate)
+5. [Apache SparkSQL](https://spark.apache.org/)
+6. [pandas](https://pandas.pydata.org/)
