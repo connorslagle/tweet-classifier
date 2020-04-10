@@ -2,79 +2,15 @@ import pandas as pd
 import numpy as np
 import os
 import re
-import matplotlib.pyplot as plt
-plt.style.use('seaborn-darkgrid')
-plt.rcParams.update({'font.size': 20})
+import plotting_functions
+import TextCleaner
 
-from sklearn.feature_extraction import stop_words
-stopwords = stop_words.ENGLISH_STOP_WORDS
+
+
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
-class TextCleaner():
 
-    def __init__(self):
-        self.re_substitution_groups = [r'http\S+', r'&amp; ', r"[@#]", r"[!?$%()*+,-./:;<=>\^_`{|}~]"]
-        self. text_abbrevs = { 'lol': 'laughing out loud', 'bfn': 'bye for now', 'cuz': 'because',
-                            'afk': 'away from keyboard', 'nvm': 'never mind', 'iirc': 'if i recall correctly',
-                            'ttyl': 'talk to you later', 'imho': 'in my honest opinion', 'brb': 'be right back' }
-        self.grammar_abbrevs = {"isn't":"is not", "aren't":"are not", "wasn't":"was not", "weren't":"were not",
-                             "haven't":"have not","hasn't":"has not","hadn't":"had not","won't":"will not",
-                             "wouldn't":"would not", "don't":"do not", "doesn't":"does not","didn't":"did not",
-                             "can't":"can not","couldn't":"could not","shouldn't":"should not","mightn't":"might not",
-                             "mustn't":"must not"}
-
-
-    def clean_tweets(self, df_tweet_text, last_clean_step=5, exclude_stopwords=False):
-        '''
-        This function will clean the text of tweets:
-        order:
-        1. lowercase
-        2. change txt abbreviations
-        3. change grammar abbreviation
-        4. remove punctuation
-        5. remove special (utf-8) characters
-        '''
-
-        df_tweet_text = str(df_tweet_text)
-
-        if last_clean_step == 1:
-            clean_text = df_tweet_text.lower()
-
-        elif last_clean_step == 2:
-            lower = df_tweet_text.lower()
-            clean_text = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
-        
-        elif last_clean_step == 3:
-            lower = df_tweet_text.lower()
-            without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
-            clean_text = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
-        
-        elif last_clean_step == 4:
-            lower = df_tweet_text.lower()
-            without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
-            without_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
-            
-            joined_re_groups = '|'.join([group for group in self.re_substitution_groups])
-            clean_text = re.sub(joined_re_groups,' ',without_grammar_abbrevs)
-        
-        elif last_clean_step == 5:
-            lower = df_tweet_text.lower()
-            without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
-            without_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
-            
-            joined_re_groups = '|'.join([group for group in self.re_substitution_groups])
-            without_re_groups = re.sub(joined_re_groups,' ',without_grammar_abbrevs)
-
-            clean_text = re.sub(r'\W',' ',without_re_groups)
-        
-        words_greater_than_two_char = ' '.join([word for word in clean_text.split() if len(word) >= 2])
-
-        if exclude_stopwords:
-            one_space_separated_tweet = ' '.join([word for word in words_greater_than_two_char.split() if word not in stopwords])
-        else:
-            one_space_separated_tweet = ' '.join([word for word in words_greater_than_two_char.split()])
-        return one_space_separated_tweet
 
 
 def to_count_list(input_lst, sorted_by_vals_desc=True):
@@ -99,62 +35,7 @@ def to_count_list(input_lst, sorted_by_vals_desc=True):
     return keys, values
 
 
-def make_barchart(ax, x_label_list, y_data, y_label, title, normalize=True):
-    x_vals = np.arange(len(x_label_list))
-    
-    if normalize:
-        temp = np.array(y_data)
-        temp = temp/np.sum(temp)
-        y_data = list(temp)
 
-    ax.set_position([0.13, 0.27, 0.8, 0.66])
-    ax.bar(x_vals, y_data, tick_label=x_label_list, align='center', alpha=0.75)
-    ax.set_ylabel(y_label)
-    ax.set_ylim((0,0.20))
-    ax.set_title(title)
-    for label in ax.get_xticklabels():
-        label.set_rotation(45)
-        label.set_ha('right')
-
-def make_hor_barchart(ax, set_position, x_label_list, y_data, y_label, title, normalize=True):
-    x_vals = np.arange(len(x_label_list))
-    
-    if normalize:
-        temp = np.array(y_data)
-        temp = temp/np.sum(temp)
-        y_data = list(temp)
-
-    ax.set_position(set_position)
-    ax.barh(x_vals, y_data, tick_label=x_label_list, align='center', alpha=0.75)
-    ax.set_xlabel(y_label)
-    ax.set_xlim((0,0.20))
-    ax.set_title(title)
-    # for label in ax.get_xticklabels():
-    #     label.set_rotation(45)
-    #     label.set_ha('right')
-
-
-def make_hist(ax, line_name, y_data, y_limit, x_label, x_limit, num_bins=50, normalize=False, cumulative=False):
-    ax.hist(y_data, bins = num_bins, density=normalize, cumulative=cumulative, label=line_name)
-    ax.set_ylabel('pmf' if normalize else 'Count')
-    ax.set_ylim((0, 1) if cumulative else y_limit)
-    ax.legend()
-    ax.set_xlim(x_limit)
-    ax.set_xlabel(x_label)
-
-def make_boxplot(ax, array_of_values, y_lim, label_lst, y_label,title):
-    ax.boxplot(array_of_values,labels=label_lst)
-    ax.set_ylabel(y_label)
-    ax.set_xlabel('Last Text Cleaning Step')
-    ax.set_title(title)
-    ax.set_ylim(y_lim)
-    ax.set_position([0.16, 0.16, 0.70, 0.70])
-
-
-
-def save_fig(saved_figure_name):
-    plt.savefig(f'../images/{saved_figure_name}', dpi=300)
-    plt.close(fig)
 
 def tweet_col_to_vader_df(analyzer_object, tweet_col):
     '''
