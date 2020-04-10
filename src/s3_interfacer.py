@@ -35,37 +35,29 @@ class BucketInterfacer():
                 [self.client.upload_file(f'{path_to_dir}{elem}', self.bucket_name, f'{s3_folder}{elem}') for elem in file_lst]
             else:
                 [self.client.upload_file(f'{path_to_dir}{elem}', self.bucket_name, f'{s3_folder}{elem}') for elem in file_lst_in_dir]
-            print(f'Successfully sent to S3 Bucket: {self.bucket_name}')
 
         except BaseException as e:
             print(e)
-            print('An error has occured with export to S3, see BucketInterfacer class.')
+
 
 
     def retrieve_from_bucket(self, s3_folder='', file_lst=[], dir_dest='../data/', is_file=True):
         '''
         Method that retrieves file (or all bucket contents) from s3 bucket.
-
-        Inputs:
-            - file_lst list(<str>), list of strings (even if len=0) to retrieve from s3 bucket
-            - dir_dest <str>, relative path to local directory where retrieved files will be placed
-            - is_file <bool>, retrieving single file or not
         '''
 
         bucket_elements = [elem['Key'] for s3_file in self.client.get_paginator("list_objects_v2")\
                          .paginate(Bucket=self.bucket_name,Prefix=s3_folder) for elem in s3_file['Contents']]
         bucket_elements = bucket_elements[1:]
-        print(bucket_elements)
+
         try:
             if is_file:
                 [self.client.download_file(self.bucket_name, f'{s3_folder}{elem}', f'{dir_dest}{elem}') for elem in file_lst]
             else:
                 [self.client.download_file(self.bucket_name, f'{elem}', f'{dir_dest}{elem}') for elem in bucket_elements]
-            print(f'Successfully retrieved from S3 Bucket: {self.bucket_name}')
 
         except BaseException as e:
             print(e)
-            print('An error has occured with import from S3, see BucketInterfacer class.')
     
 
 

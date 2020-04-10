@@ -4,8 +4,7 @@ from pyspark.sql.functions import lit
 
 class PipelineToPandas():
     '''
-    Class that performs ETL from datalake json file to structured pandas dataframe. Needs to be run in 
-    sparkbook Docker container.
+    Class that performs ETL from datalake json file to structured pandas dataframe.
     '''
     def __init__(self):
         self.spark = (ps.sql.SparkSession
@@ -58,14 +57,15 @@ class PipelineToPandas():
                 lang = 'en'
             ''')
         self.pandas_df = self.new_spark_df.toPandas()
-        return self.pandas_df
+
+    def save_to_csv(self, path_to_csv):
+        self.pandas_df.to_csv(path_to_csv, encoding='utf-8')
 
 
 
 if __name__ == "__main__":
-    twitter_search_term_dict = {1: ['@joebiden'], 2: ['#COVID19' '@joebiden'], 3: ['#COVID19'],
-                                4: ['#COVID19' '@realdonaldtrump'], 5: ['@realdonaldtrump']}
-    
+
+    print('hi')
     # pipeline = PipelineToPandas()
     # path_to_json
     # pipeline.load_to_spark_df('../zip_data/data/test.json')
