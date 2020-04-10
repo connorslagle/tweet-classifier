@@ -4,7 +4,7 @@ import os
 import re
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-darkgrid')
-plt.rcParams.update({'font.size': 22})
+plt.rcParams.update({'font.size': 20})
 
 from sklearn.feature_extraction import stop_words
 stopwords = stop_words.ENGLISH_STOP_WORDS
@@ -94,6 +94,23 @@ def make_barchart(ax, x_label_list, y_data, y_label, title, normalize=True):
         label.set_rotation(45)
         label.set_ha('right')
 
+def make_hor_barchart(ax, set_position, x_label_list, y_data, y_label, title, normalize=True):
+    x_vals = np.arange(len(x_label_list))
+    
+    if normalize:
+        temp = np.array(y_data)
+        temp = temp/np.sum(temp)
+        y_data = list(temp)
+
+    ax.set_position(set_position)
+    ax.barh(x_vals, y_data, tick_label=x_label_list, align='center', alpha=0.75)
+    ax.set_xlabel(y_label)
+    ax.set_xlim((0,0.20))
+    ax.set_title(title)
+    # for label in ax.get_xticklabels():
+    #     label.set_rotation(45)
+    #     label.set_ha('right')
+
 def make_hist(self, line_name, y_data, x_label, subplot_number=0, num_bins=50, normalize=True, cumulative=False):
     # x_vals = np.linspace(x_start_stop[0], x_start_stop[1], 1000)
 
@@ -177,18 +194,38 @@ if __name__ == '__main__':
 
     colorado_df = pd.DataFrame.from_dict(colorado_dict)
 
-    fig, ax = plt.subplots(1, figsize=(12,8))
+    fig, ax = plt.subplots(3,1, figsize=(10,22), sharex=True)
 
-    for i, treatment in enumerate(treatment_dict.values()):
-        fig, ax = plt.subplots(1, figsize=(12,8))
+    fig_pos_lst = [[0.25, 0.67, 0.7, 0.30],
+                  [0.25, 0.35, 0.7, 0.30],
+                  [0.25, 0.03, 0.7, 0.30]]
+
+    # ax = ax.flatten()
+    for i, treatment in enumerate(['@joebiden', '#COVID19', '@realdonaldtrump']):
         total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
-               
         total_tweet_list = total_tweet_string.split()
         words, counts = to_count_list(total_tweet_list)
-        make_barchart(ax,words[:25],counts[:25],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
-        save_fig(f'{state}_{i}_raw_bar.png')
+        if i == 2:
+            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
+        else:
+            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
+    save_fig(f'{state}_single_word_raw_bar.png')
 
+    fig, ax = plt.subplots(2,1, figsize=(10,22), sharex=True)
 
+    fig_pos_lst = [[0.10, 0.51, 0.8, 0.30],
+                  [0.10, 0.18, 0.8, 0.30]]
+
+    # ax = ax.flatten()
+    for i, treatment in enumerate(['@joebiden + #COVID19', '@realdonaldtrump + #COVID19']):
+        total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
+        total_tweet_list = total_tweet_string.split()
+        words, counts = to_count_list(total_tweet_list)
+        if i == 1:
+            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
+        else:
+            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
+    save_fig(f'{state}_multi_word_raw_bar.png')
 
     # for select_treatment in range(len(json_list)):
 

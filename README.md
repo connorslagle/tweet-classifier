@@ -179,14 +179,10 @@ Most of the fields mentioned above were gathered for future analysis; fields rel
 ## Raw Tweets
 
 <p align="center">
-    <img src="images/CO_0_raw_bar.png" width='300'/>
-    <img src="images/CO_2_raw_bar.png" width='300'/>
-    <img src="images/CO_4_raw_bar.png" width='300'/>
+    <img src="images/CO_single_word_raw_bar.png" width='300'/>
+    <img src="images/CO_multi_word_raw_bar.png" width='300'/>
 </p>
-<p align="center">
-    <img src="images/CO_1_raw_bar.png" width='300'/>
-    <img src="images/CO_3_raw_bar.png" width='300'/>
-</p>
+
 Outliine:
 
 1. Intro - done
