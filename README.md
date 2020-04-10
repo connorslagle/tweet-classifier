@@ -13,6 +13,9 @@
 3. [Exploratory Data Analysis](#Exploratory-Data-Analysis)
 4. [The VADER Algorithm](#The-VADER-Algorithm)
 5. [Bootstrapping the Data](##Bootstrapping-The-Data)
+6. [Sensitivity of Pre-processing](#Sensitivity-of-Pre-processing)
+7. [Conclusion](#Conclusion)
+8. [References](#References)
 
 
 # Motivation
@@ -169,8 +172,9 @@ The single-term search datasets scored well below the double-term search dataset
 Text preprocessing is a crucial step when performing any king of machine learning (ML) task. There are many ways to clean text, but traditionally they boil down to these:
 
 1. Lowercase the text
-2. Eliminate abbreviations (either grammatical or cultural)
-3. Remove punctuation
+2. Eliminate cultural abbreviations
+4. Eliminate grammatical abbreviations
+4. Remove punctuation
 5. Remove non-text characters
 
 I repeated the bootstrapped analysis above but with incrementally increasing the amount of text pre-processing. I wanted to see if the VADER results change for the better after pre-processing.
@@ -191,6 +195,9 @@ I repeated the bootstrapped analysis above but with incrementally increasing the
     <img src="images/CO_4_mean_compound_boxplot.png" width='300'/>
 </p>
 
+In the above Figure, search terms are varied with columns and VADER metric is varied with rows. First thing I noticed was the lack of overall change in sentiment parameter with increasing text preprocessing. However, the relative change is noticable - especially on the distribution of sample means.
+
+For example, it seems both Joe Biden and Donald Trump have higher negative AND positive sentiment proportions on average; but, both of their compound sentiment scores decreased.  
 
 
 <p align="center">
@@ -206,9 +213,13 @@ I repeated the bootstrapped analysis above but with incrementally increasing the
     <img src="images/CO_3_mean_compound_boxplot.png" width='400'/>
 </p>
 
+Following a similar trend - as preprocessing increases negative and positive proportions for dual-word search terms increase; while compound score decreases. 
+
+It seems like the majority of the change in compound sentiment occures when removing non-character characters - such as emojis. Intuitavely, this makes sense - emoji's are compact expressions of emotion. 
 
 # Conclusion
 
+In conclusion, the VADER algorithm is impacted by text preprocessing techniques. The scope of this impact is for another project, but it is important to realize how you preprocess data can have remifications!
 
 # References:
 1. [VADER github](https://github.com/cjhutto/vaderSentiment)
