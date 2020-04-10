@@ -4,7 +4,7 @@ import os
 import re
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-darkgrid')
-plt.rcParams.update({'font.size': 18})
+plt.rcParams.update({'font.size': 22})
 
 from sklearn.feature_extraction import stop_words
 stopwords = stop_words.ENGLISH_STOP_WORDS
@@ -85,7 +85,7 @@ def make_barchart(ax, x_label_list, y_data, y_label, title, normalize=True):
         temp = temp/np.sum(temp)
         y_data = list(temp)
 
-    ax.set_position([0.1, 0.25, 0.85, 0.6])
+    ax.set_position([0.13, 0.27, 0.8, 0.66])
     ax.bar(x_vals, y_data, tick_label=x_label_list, align='center', alpha=0.75)
     ax.set_ylabel(y_label)
     ax.set_ylim((0,0.20))
