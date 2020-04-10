@@ -62,8 +62,8 @@ The topic I chose to investigate is in the back of everyone's mind at the moment
 For each of these keyword combinations, ~8,000 tweets were collected in a 6 day period from 3/31/2020 to 4/6/2020 for each region; totaling ~ 120,000 tweets. Due to the request rate limitation of the Twitter API, I rotated through keywords after collecting ~1,000 tweets. The tweets were stored in their natural, unstructured state and aggregated. Tweets are naturally structured as nested json files with many attributes. Here's an example of a relatively short tweet:
 
 <p align="center">
-    <img src="images/json1.png" width='300'/>
-    <img src="images/json2.png" width='300'/>
+    <img src="images/json1.png" width='450'/>
+    <img src="images/json2.png" width='450'/>
 </p>
 
 <!-- ```python
