@@ -10,6 +10,8 @@
 
 1. [Motivation](#Motivation)
 2. [The Dataset](#The-Dataset)
+3. [Exploratory Data Analysis](#Exploratory-Data-Analysis)
+4. [The VADER Algorithm](#The-VADER-Algorithm)
 
 
 # Motivation
@@ -59,139 +61,88 @@ The topic I chose to investigate is in the back of everyone's mind at the moment
 4. @realdonaldtrump & #COVID19
 5. @realdonaldtrump
 
-For each of these keyword combinations, ~8,000 tweets were collected in a 6 day period from 3/31/2020 to 4/6/2020 for each region; totaling ~ 120,000 tweets. Due to the request rate limitation of the Twitter API, I rotated through keywords after collecting ~1,000 tweets. The tweets were stored in their natural, unstructured state and aggregated. Tweets are naturally structured as nested json files with many attributes. Here's an example of a relatively short tweet:
+For each of these keyword combinations, ~8,000 tweets were collected in a 6 day period from 3/31/2020 to 4/6/2020 for each region; totaling ~ 120,000 tweets. Due to the request rate limitation of the Twitter API, I rotated through keywords after collecting ~1,000 tweets. The tweets were stored in their natural, unstructured state and aggregated. Tweets are naturally structured as nested json files with many attributes. Here's an example of a relatively short tweet (truncated for brevity):
 
 <p align="center">
     <img src="images/json1.png" width='450'/>
     <img src="images/json2.png" width='450'/>
 </p>
 
-<!-- ```python
-    {'contributors': None,
-    'coordinates': None,
-    'created_at': 'Wed Apr 01 20:15:11 +0000 2020',
-    'display_text_range': [25, 90],
-    'entities': {'hashtags': [],
-                'symbols': [],
-                'urls': [],
-                'user_mentions': [{'id': 1917731,
-                                    'id_str': '1917731',
-                                    'indices': [0, 8],
-                                    'name': 'The Hill',
-                                    'screen_name': 'thehill'},
-                                    {'id': 471672239,
-                                    'id_str': '471672239',
-                                    'indices': [9, 24],
-                                    'name': 'Kellyanne Conway',
-                                    'screen_name': 'KellyannePolls'}]},
-    'favorite_count': 0,
-    'favorited': False,
-    'filter_level': 'low',
-    'geo': None,
-    'id': 1245444620122816512,
-    'id_str': '1245444620122816512',
-    'in_reply_to_screen_name': 'thehill',
-    'in_reply_to_status_id': 1245441154721644549,
-    'in_reply_to_status_id_str': '1245441154721644549',
-    'in_reply_to_user_id': 1917731,
-    'in_reply_to_user_id_str': '1917731',
-    'is_quote_status': False,
-    'lang': 'en',
-    'place': {'attributes': {},
-            'bounding_box': {'coordinates': [[[-94.61771, 33.004106],
-                                                [-94.61771, 36.499767],
-                                                [-89.644838, 36.499767],
-                                                [-89.644838, 33.004106]]],
-                                'type': 'Polygon'},
-            'country': 'United States',
-            'country_code': 'US',
-            'full_name': 'Arkansas, USA',
-            'id': 'e8ad2641c1cb666c',
-            'name': 'Arkansas',
-            'place_type': 'admin',
-            'url': 'https://api.twitter.com/1.1/geo/id/e8ad2641c1cb666c.json'},
-    'quote_count': 0,
-    'reply_count': 0,
-    'retweet_count': 0,
-    'retweeted': False,
-    'source': '<a href="http://twitter.com/download/android" '
-            'rel="nofollow">Twitter for Android</a>',
-    'text': "@thehill @KellyannePolls Just go away won't you Kelly and it would "
-            'be a service to America',
-    'timestamp_ms': '1585772111336',
-    'truncated': False,
-    'user': {'contributors_enabled': False,
-            'created_at': 'Fri Dec 26 16:42:35 +0000 2014',
-            'default_profile': True,
-            'default_profile_image': False,
-            'description': 'arkansas democrat',
-            'favourites_count': 4242,
-            'follow_request_sent': None,
-            'followers_count': 20,
-            'following': None,
-            'friends_count': 129,
-            'geo_enabled': True,
-            'id': 2944125506,
-            'id_str': '2944125506',
-            'is_translator': False,
-            'lang': None,
-            'listed_count': 0,
-            'location': 'Arkansas, USA',
-            'name': 'Susan Martin',
-            'notifications': None,
-            'profile_background_color': 'C0DEED',
-            'profile_background_image_url': 'http://abs.twimg.com/images/themes/theme1/bg.png',
-            'profile_background_image_url_https': 'https://abs.twimg.com/images/themes/theme1/bg.png',
-            'profile_background_tile': False,
-            'profile_image_url': 'http://pbs.twimg.com/profile_images/1101888795379728384/GEKIK6sh_normal.jpg',
-            'profile_image_url_https': 'https://pbs.twimg.com/profile_images/1101888795379728384/GEKIK6sh_normal.jpg',
-            'profile_link_color': '1DA1F2',
-            'profile_sidebar_border_color': 'C0DEED',
-            'profile_sidebar_fill_color': 'DDEEF6',
-            'profile_text_color': '333333',
-            'profile_use_background_image': True,
-            'protected': False,
-            'screen_name': 'suem4444',
-            'statuses_count': 2244,
-            'time_zone': None,
-            'translator_type': 'none',
-            'url': None,
-            'utc_offset': None,
-            'verified': False}}
-``` -->
 
-From s3, the tweets were queried for select fields and stored in local a pandas DataFrame prior to processed. The structure of the flattened pandas DataFrame is shown below:
+As you can see, that 'short' tweet is not so short. To put the data in a more structured format, the tweets were queried for select fields and stored in a local pandas DataFrame prior to processing. The structure of a flattened pandas DataFrame is shown below:
 
 <p align="center">
     <img src="images/dark_df.png" width='400'/>
 </p>
 
-Most of the fields mentioned above were gathered for future analysis; fields relevant to analysis sentiment are **tweet_text, state, and search_term_key,** all of which are string datatype.
+Most of the fields mentioned above were gathered for future projects; fields relevant for this project are **tweet_text, state, and search_term_key.**
 
 ## Data Pipeline
-
-
 
 <p align="center">
     <img src="images/tweet_path.png" width='600'/>
 </p>
 
-As mentioned in the introduction, throughout this project I wanted to simulate a 'big data' type corporate data science project. As such the data stack I decided on is depicted in the figure above. 
+As mentioned in the introduction, throughout this project I wanted to simulate a 'big data' corporate data science project. In big data projects it is almost impossible to process all the data locally. As such the data stack I decided on is depicted in the figure above. 
 
-First, the tweets were streamed to a remote EC2 instance (t2.micro) 
+First, the tweets were streamed to a remote AWS EC2 instance (t2.micro). The tweets were then stored in unstructured format in an AWS s3 bucket to await analysis. [Apache SparkSQL](https://spark.apache.org/) was used to cast the unstructured json to a dataframe for use locally with the [pandas](https://pandas.pydata.org/) python library. 
 
-## Raw Tweets
+
+# Exploratory Data Analysis 
+## The Centennial State
+
+To get a better understanding of the data, I explored the corpus of tweets gathered from the Colorado region. 
 
 <p align="center">
-    <img src="images/CO_single_word_raw_bar.png" width='300'/>
-    <img src="images/CO_multi_word_raw_bar.png" width='300'/>
+    <img src="images/CO_single_word_raw_bar.png" width='450'/>
+    <img src="images/CO_multi_word_raw_bar.png" width='450'/>
+</p>
+
+Figure 1: Top 25 most used words by search term of unprocessed tweet text. Relative frequency of each word is shown for single-word search terms (left) and double-word search terms (right).
+
+Overall, single-word search term corpora have a smaller number of very popular words than those from double-word search terms. Unsurprisingly, the search term appeared in the top 5 most frequently used words in their data set. Somewhat more suprising, was the prevalence of small, relatively uninformative words, such as 'to', 'the' and 'is', in all of the data sets. 
+
+However, what I found to be the most interesting was the lack of search terms in each of the double-word datasets as well as the similarity between them. In fact, they share 24/25 top words.
+
+The similarity between the word frequency charts made me skeptical that there would be any noticable difference in sentiment between the two treatments. But never say never.
+
+# The VADER Algorithm 
+
+To explore the data further, I wanted to see how the 'raw' data would perform with the VADER algorith. For reference, here are some examples provided on their GitHub page:
+
+```pthyon
+VADER is smart, handsome, and funny.----------- {'pos': 0.746, 'compound': 0.8316, 'neu': 0.254, 'neg': 0.0}
+VADER is VERY SMART, handsome, and FUNNY!!!---- {'pos': 0.767, 'compound': 0.9342, 'neu': 0.233, 'neg': 0.0}
+VADER is not smart, handsome, nor funny.------- {'pos': 0.0, 'compound': -0.7424, 'neu': 0.354, 'neg': 0.646}
+
+The book was good.----------------------------- {'pos': 0.492, 'compound': 0.4404, 'neu': 0.508, 'neg': 0.0}
+At least it isn't a horrible book.------------- {'pos': 0.363, 'compound': 0.431, 'neu': 0.637, 'neg': 0.0}
+
+Today only kinda sux! But I'll get by, lol----- {'pos': 0.317, 'compound': 0.5249, 'neu': 0.556, 'neg': 0.127}
+Make sure you :) or :D today!------------------ {'pos': 0.706, 'compound': 0.8633, 'neu': 0.294, 'neg': 0.0}
+Catch utf-8 emoji such as 💘 and 💋 and 😁------ {'pos': 0.279, 'compound': 0.7003, 'neu': 0.721, 'neg': 0.0}
+
+Not bad at all--------------------------------- {'pos': 0.487, 'compound': 0.431, 'neu': 0.513, 'neg': 0.0}
+
+```
+
+From the examples, this algorithm should fair pretty well with out data - let's see.
+
+<p align="center">
+    <img src="images/CO_0_raw_compound_sentiment.png" width='550'/>
 </p>
 
 <p align="center">
-    <img src="images/CO_0_raw_compound_sentiment.png" width='300'/>
-    <img src="images/CO_2_raw_compound_sentiment.png" width='300'/>
-    <img src="images/CO_4_raw_compound_sentiment.png" width='300'/>
+    <img src="images/CO_2_raw_compound_sentiment.png" width='550'/>
 </p>
+
+<p align="center">
+    <img src="images/CO_4_raw_compound_sentiment.png" width='550'/>
+</p>
+
+Figure 2. Histograms of VADER Compound Sentiment by single-word search. Compound sentiment is scaled from [-1, 1]. It's calculated by weighting the positive sentiment, negative sentiment and neutral sentiment proportions along with corrections for phrases.
+
+The
 
 <p align="center">
     <img src="images/CO_all_raw__mean_compound_sentiment.png" width='300'/>
@@ -258,3 +209,5 @@ Outliine:
 # References:
 1. [VADER github](https://github.com/cjhutto/vaderSentiment)
 2. [VADER research publication](http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf)
+3. [Tweepy](http://www.tweepy.org/)
+4. [Apache SparkSQL](https://spark.apache.org/)
