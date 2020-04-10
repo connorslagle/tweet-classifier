@@ -61,7 +61,12 @@ The topic I chose to investigate is in the back of everyone's mind at the moment
 
 For each of these keyword combinations, ~8,000 tweets were collected in a 6 day period from 3/31/2020 to 4/6/2020 for each region; totaling ~ 120,000 tweets. Due to the request rate limitation of the Twitter API, I rotated through keywords after collecting ~1,000 tweets. The tweets were stored in their natural, unstructured state and aggregated. Tweets are naturally structured as nested json files with many attributes. Here's an example of a relatively short tweet:
 
-```python
+<p align="center">
+    <img src="images/json1.png" width='300'/>
+    <img src="images/json2.png" width='300'/>
+</p>
+
+<!-- ```python
     {'contributors': None,
     'coordinates': None,
     'created_at': 'Wed Apr 01 20:15:11 +0000 2020',
@@ -153,7 +158,7 @@ For each of these keyword combinations, ~8,000 tweets were collected in a 6 day 
             'url': None,
             'utc_offset': None,
             'verified': False}}
-```
+``` -->
 
 From s3, the tweets were queried for select fields and stored in local a pandas DataFrame prior to processed. The structure of the flattened pandas DataFrame is shown below:
 
