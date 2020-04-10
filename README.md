@@ -196,7 +196,36 @@ Most of the fields mentioned above were gathered for future analysis; fields rel
 
 ## Tweet Preprocessing
 
+### Single Search Term Sensitivity
+<p align="center">
+    <img src="images/CO_0_mean_negative_boxplot.png" width='300'/>
+    <img src="images/CO_2_mean_negative_boxplot.png" width='300'/>
+    <img src="images/CO_4_mean_negative_boxplot.png" width='300'/>
+</p>
+<p align="center">
+    <img src="images/CO_0_mean_positive_boxplot.png" width='300'/>
+    <img src="images/CO_2_mean_positive_boxplot.png" width='300'/>
+    <img src="images/CO_4_mean_positive_boxplot.png" width='300'/>
+</p>
+<p align="center">
+    <img src="images/CO_0_mean_compound_boxplot.png" width='300'/>
+    <img src="images/CO_2_mean_compound_boxplot.png" width='300'/>
+    <img src="images/CO_4_mean_compound_boxplot.png" width='300'/>
+</p>
 
+
+<p align="center">
+    <img src="images/CO_1_mean_negative_boxplot.png" width='300'/>
+    <img src="images/CO_3_mean_negative_boxplot.png" width='300'/>
+</p>
+<p align="center">
+    <img src="images/CO_1_mean_positive_boxplot.png" width='300'/>
+    <img src="images/CO_3_mean_positive_boxplot.png" width='300'/>
+</p>
+<p align="center">
+    <img src="images/CO_1_mean_compound_boxplot.png" width='300'/>
+    <img src="images/CO_3_mean_compound_boxplot.png" width='300'/>
+</p>
 
 Outliine:
 
