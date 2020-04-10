@@ -176,8 +176,17 @@ Most of the fields mentioned above were gathered for future analysis; fields rel
     <img src="images/realtrump.png" width='300' />
 </p> -->
 
+## Raw Tweets
 
-
+<p align="center">
+    <img src="images/CO_0_raw_bar.png" width='450'/>
+    <img src="images/CO_2_raw_bar.png" width='450'/>
+    <img src="images/CO_4_raw_bar.png" width='450'/>
+</p>
+<p align="center">
+    <img src="images/CO_1_raw_bar.png" width='450'/>
+    <img src="images/CO_3_raw_bar.png" width='450'/>
+</p>
 Outliine:
 
 1. Intro - done
