@@ -2,21 +2,19 @@ import pandas as pd
 import numpy as np
 import os
 import re
+import numpy as np
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-darkgrid')
+plt.rcParams.update({'font.size': 20})
+
 import plotting_functions
 import TextCleaner
-
-
-
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-
-
-
-
 
 def to_count_list(input_lst, sorted_by_vals_desc=True):
     '''
     Counts words in word list, converts to count dictionary, then outputs
-    words (keys) and counts (vals)
+    words (keys) and counts (values)
     '''
     new_dict ={}
     for word in input_lst:
@@ -35,11 +33,9 @@ def to_count_list(input_lst, sorted_by_vals_desc=True):
     return keys, values
 
 
-
-
 def tweet_col_to_vader_df(analyzer_object, tweet_col):
     '''
-    slow but works
+    Iterates through tweet column of df, applying VADER algorithm and exporting as new df.
     '''
     vader_df = pd.DataFrame()
     vader_df['tweet'] = tweet_col
@@ -142,10 +138,10 @@ if __name__ == '__main__':
             make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
         else:
             make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
-    save_fig(f'{state}_multi_word_raw_bar.png')
+    save_fig(fig,f'{state}_multi_word_raw_bar.png')
 
     '''
-    VADER analysis on RAW tweets
+    VADER analysis on RAW tweets, Figure 2
     '''
     analyzer = SentimentIntensityAnalyzer()
 
@@ -153,12 +149,11 @@ if __name__ == '__main__':
         fig, ax = plt.subplots(1,figsize=(8,6))
         vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
         make_hist(ax, treatment, vader_df['compound'], (0,4000), 'Compound Sentiment', (-1, 1))
-        save_fig(f'{state}_{i}_raw_compound_sentiment.png')
+        save_fig(fig, f'{state}_{i}_raw_compound_sentiment.png')
 
     '''
-    Bootstrap raw tweets
+    Bootstrap raw tweets, Figure 3
     '''
-
     fig, ax = plt.subplots(1,figsize=(8,6))
     for i, treatment in enumerate(treatment_dict.values()):
 
@@ -168,16 +163,14 @@ if __name__ == '__main__':
         bootstrap_sample_means = list(map(np.mean, bootstrap_samples))
 
         make_hist(ax, treatment, bootstrap_sample_means, (0,120), 'Mean Compound Sentiment', (-1, 1))
-    save_fig(f'{state}_all_raw__mean_compound_sentiment.png')
+    save_fig(fig, f'{state}_all_raw__mean_compound_sentiment.png')
 
     '''
-    preprocess tweets, perform VADER analysis, and make sensitivity boxplots
+    preprocess tweets, perform VADER analysis, and make sensitivity boxplots Figures 4,5
     '''
     cleaner = TextCleaner()
     num_resamples = 1000
     total_cleaning_steps = range(1,6)
-
-    
 
     for i, treatment in enumerate(treatment_dict.values()):
         two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, 'compound', num_resamples, total_cleaning_steps)

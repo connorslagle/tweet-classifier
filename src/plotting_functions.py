@@ -32,9 +32,6 @@ def make_hor_barchart(ax, set_position, x_label_list, y_data, y_label, title, no
     ax.set_xlabel(y_label)
     ax.set_xlim((0,0.20))
     ax.set_title(title)
-    # for label in ax.get_xticklabels():
-    #     label.set_rotation(45)
-    #     label.set_ha('right')
 
 
 def make_hist(ax, line_name, y_data, y_limit, x_label, x_limit, num_bins=50, normalize=False, cumulative=False):
@@ -55,6 +52,6 @@ def make_boxplot(ax, array_of_values, y_lim, label_lst, y_label,title):
 
 
 
-def save_fig(saved_figure_name):
+def save_fig(fig, saved_figure_name):
     plt.savefig(f'../images/{saved_figure_name}', dpi=300)
     plt.close(fig)

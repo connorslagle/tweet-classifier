@@ -7,9 +7,9 @@ import argparse
 from twitter_interfacer import TwitterStreamer
 from twitter_interfacer import StdOutListener
 
-# pull tweets using trump, biden, COVID, trump + COVID, biden + COVID 
-# Compare sentiment of txt between goups and US locations (Colorado, Oregon, Arkansas)
-# MVP - geoheatmap of sentiment by state
+'''
+Script for operating twitter streamer on EC2. Controlled by 'scrape_control.sh' bash file.
+'''
 
 parser = argparse.ArgumentParser(description='run tweet grab for cap1')
 parser.add_argument('-s','--state',help='select state: 0-OR, 1-CO, 2-AR')
@@ -45,6 +45,7 @@ while path.exists(path_):
     i += 1
     fetched_tweets_filename = f'../data/{state_lst[int(args.state)]}_{hash_filter}_{i}.json'
     path_ = path.relpath(fetched_tweets_filename)
+
 
 twitter_streamer = TwitterStreamer()
 twitter_streamer.stream_tweets(fetched_tweets_filename, hash_filter, latlong_lst[int(args.state)],tweet_file_size, async_bool)

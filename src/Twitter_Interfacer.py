@@ -6,7 +6,7 @@ import twitter_credentials
 
 class TwitterStreamer():
     """
-    Class for streaming and processing live tweets.
+    Class for streaming and processing live tweets. Accesses credentials in 'twitter_credentials.py' - hidden from github
     """
     def __init__(self):
         self.auth_handler = OAuthHandler(twitter_credentials.CONSUMER_KEY, twitter_credentials.CONSUMER_SECRET)
@@ -25,7 +25,6 @@ class TwitterStreamer():
 class StdOutListener(StreamListener):
     """
     This tweet listener will record tweets with the keywords specified in
-    has_tag_list
     """
 
     def __init__(self, fetched_tweets_filename,tweet_file_size):
@@ -35,8 +34,7 @@ class StdOutListener(StreamListener):
 
     def on_data(self, data):
         '''
-        Method that describes what to do when encountering tweet.
-        Inputs: data 
+        Method that describes what to do when encountering tweet. Explicitely verbose for running on EC2.
         '''
         try:
             print(f'Tweets recorded: {self.tweet_count}')
@@ -58,4 +56,4 @@ class StdOutListener(StreamListener):
             return False
 
 if __name__ == "__main__":
-    print('test')
+    print('')
