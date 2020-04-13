@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn-darkgrid')
 plt.rcParams.update({'font.size': 20})
 
-from plotting_functions import make_boxplot, save_fig
+from plotting_functions import make_boxplot, save_fig, make_hist
 from TextCleaner import TextCleaner
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
@@ -154,30 +154,33 @@ if __name__ == '__main__':
     '''
     Bootstrap raw tweets, Figure 3
     '''
-    # fig, ax = plt.subplots(1,figsize=(8,6))
-    # for i, treatment in enumerate(treatment_dict.values()):
+    fig, ax = plt.subplots(1,figsize=(12,8))
 
-    #     vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
+    sentiment_parameter = 'pos'
 
-    #     bootstrap_samples = bootstrap(vader_df['compound'],resamples=1000)
-    #     bootstrap_sample_means = list(map(np.mean, bootstrap_samples))
+    for i, treatment in enumerate(treatment_dict.values()):
 
-    #     make_hist(ax, treatment, bootstrap_sample_means, (0,120), 'Mean Compound Sentiment', (-1, 1))
-    # save_fig(fig, f'{state}_all_raw__mean_compound_sentiment.png')
+        vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
+
+        bootstrap_samples = bootstrap(vader_df[sentiment_parameter],resamples=1000)
+        bootstrap_sample_means = list(map(np.std, bootstrap_samples))
+
+        make_hist(ax, treatment, bootstrap_sample_means, (0,140), 'Std. Positive Sentiment', (0, 1))
+    save_fig(fig, f'test_images/{state}_all_raw__std_{sentiment_parameter}_sentiment.png')
 
     '''
     preprocess tweets, perform VADER analysis, and make sensitivity boxplots Figures 4,5
     '''
-    cleaner = TextCleaner()
-    num_resamples = 1000
-    total_cleaning_steps = range(1,6)
+    # cleaner = TextCleaner()
+    # num_resamples = 1000
+    # total_cleaning_steps = range(1,6)
 
-    new_lst = ['#COVID19']
+    # new_lst = ['#COVID19']
 
-    for treatment in new_lst:
-        two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, 'compound', num_resamples, total_cleaning_steps)
+    # for treatment in new_lst:
+    #     two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, 'compound', num_resamples, total_cleaning_steps)
 
-        # make boxplots
-        fig, ax = plt.subplots(1,figsize=(8,6))
-        make_boxplot(ax,two_dim_array,(-0.045,0.055),total_cleaning_steps,'Mean Compound Sentiment',title=f'Text Cleaning Sensitivity for\n{treatment}')
-        save_fig(fig,f'{state}_2_mean_compound_boxplot.png')
+    #     # make boxplots
+    #     fig, ax = plt.subplots(1,figsize=(8,6))
+    #     make_boxplot(ax,two_dim_array,(-0.045,0.055),total_cleaning_steps,'Mean Compound Sentiment',title=f'Text Cleaning Sensitivity for\n{treatment}')
+    #     save_fig(fig,f'{state}_2_mean_compound_boxplot.png')
