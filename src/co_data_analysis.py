@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn-darkgrid')
 plt.rcParams.update({'font.size': 20})
 
-from plotting_functions import make_boxplot, save_fig, make_hist
+from plotting_functions import make_boxplot, save_fig, make_hist, make_ci_lineplot
 from TextCleaner import TextCleaner
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
@@ -154,26 +154,26 @@ if __name__ == '__main__':
     '''
     Bootstrap raw tweets, Figure 3
     '''
-    fig, ax = plt.subplots(1,figsize=(12,8))
+    # fig, ax = plt.subplots(1,figsize=(12,8))
 
-    sentiment_parameter = 'pos'
+    # sentiment_parameter = 'pos'
 
-    for i, treatment in enumerate(treatment_dict.values()):
+    # for i, treatment in enumerate(treatment_dict.values()):
 
-        vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
+    #     vader_df = tweet_col_to_vader_df(analyzer, colorado_df[treatment])
 
-        bootstrap_samples = bootstrap(vader_df[sentiment_parameter],resamples=1000)
-        bootstrap_sample_means = list(map(np.std, bootstrap_samples))
+    #     bootstrap_samples = bootstrap(vader_df[sentiment_parameter],resamples=1000)
+    #     bootstrap_sample_means = list(map(np.std, bootstrap_samples))
 
-        make_hist(ax, treatment, bootstrap_sample_means, (0,140), 'Std. Positive Sentiment', (0, 1))
-    save_fig(fig, f'test_images/{state}_all_raw__std_{sentiment_parameter}_sentiment.png')
+    #     make_hist(ax, treatment, bootstrap_sample_means, (0,140), 'Std. Positive Sentiment', (0, 1))
+    # save_fig(fig, f'test_images/{state}_all_raw__std_{sentiment_parameter}_sentiment.png')
 
     '''
     preprocess tweets, perform VADER analysis, and make sensitivity boxplots Figures 4,5
     '''
-    # cleaner = TextCleaner()
-    # num_resamples = 1000
-    # total_cleaning_steps = range(1,6)
+    cleaner = TextCleaner()
+    num_resamples = 1000
+    total_cleaning_steps = range(1,6)
 
     # new_lst = ['#COVID19']
 
@@ -183,8 +183,23 @@ if __name__ == '__main__':
     #     # make boxplots
     #     fig, ax = plt.subplots(1,figsize=(8,6))
     #     make_boxplot(ax,two_dim_array,(-0.045,0.055),total_cleaning_steps,'Mean Compound Sentiment',title=f'Text Cleaning Sensitivity for\n{treatment}')
-    #     save_fig(fig,f'{state}_2_mean_compound_boxplot.png')
+    # #     save_fig(fig,f'{state}_2_mean_compound_boxplot.png')
 
+    # Replace boxplots with shadded line plots
+    vader_param = 'pos'
+    single_term_dict = {1: '@joebiden', 3: '#COVID19', 5: '@realdonaldtrump'}
+    double_term_dict = {2: '@joebiden + #COVID19', 4: '@realdonaldtrump + #COVID19'}
+
+    fig, ax = plt.subplots(1,figsize=(10,8))
+
+    for key, treatment in treatment_dict.items():
+        two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, vader_param, num_resamples, total_cleaning_steps)
+        make_ci_lineplot(ax, treatment,two_dim_array,(0.05,0.21), total_cleaning_steps, 'Mean Positive Proportion (95% CI)',title=f'Positive Proportion vs Text Pre-processing\nNo Stopwords')
+    save_fig(fig, f'{state}_all_positive_shaded_line_plot.png')
     '''
     Hypothesis tests, mean and variance - Think about some kind of Bayesian test
     '''
+
+    # Test on means
+
+
