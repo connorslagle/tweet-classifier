@@ -184,3 +184,7 @@ if __name__ == '__main__':
     #     fig, ax = plt.subplots(1,figsize=(8,6))
     #     make_boxplot(ax,two_dim_array,(-0.045,0.055),total_cleaning_steps,'Mean Compound Sentiment',title=f'Text Cleaning Sensitivity for\n{treatment}')
     #     save_fig(fig,f'{state}_2_mean_compound_boxplot.png')
+
+    '''
+    Hypothesis tests, mean and variance - Think about some kind of Bayesian test
+    '''
