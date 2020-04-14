@@ -29,23 +29,31 @@ class TextCleaner():
         4. remove punctuation
         5. remove special (utf-8) characters
         '''
-
         df_tweet_text = str(df_tweet_text)
 
-        if last_clean_step == 1:
-            clean_text = df_tweet_text.lower()
+        if exclude_stopwords:
+            df_tweet_text_sw = ' '.join([word for word in df_tweet_text.split() if word not in stopwords])
+        else:
+            df_tweet_text_sw = ' '.join([word for word in df_tweet_text.split()])
+
+        
+        if last_clean_step == 0:
+            clean_text = df_tweet_text_sw
+
+        elif last_clean_step == 1:
+            clean_text = df_tweet_text_sw.lower()
 
         elif last_clean_step == 2:
-            lower = df_tweet_text.lower()
+            lower = df_tweet_text_sw.lower()
             clean_text = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
         
         elif last_clean_step == 3:
-            lower = df_tweet_text.lower()
+            lower = df_tweet_text_sw.lower()
             without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
             clean_text = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
         
         elif last_clean_step == 4:
-            lower = df_tweet_text.lower()
+            lower = df_tweet_text_sw.lower()
             without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
             without_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
             
@@ -53,7 +61,7 @@ class TextCleaner():
             clean_text = re.sub(joined_re_groups,' ',without_grammar_abbrevs)
         
         elif last_clean_step == 5:
-            lower = df_tweet_text.lower()
+            lower = df_tweet_text_sw.lower()
             without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
             without_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
             
@@ -64,8 +72,6 @@ class TextCleaner():
         
         words_greater_than_two_char = ' '.join([word for word in clean_text.split() if len(word) >= 2])
 
-        if exclude_stopwords:
-            one_space_separated_tweet = ' '.join([word for word in words_greater_than_two_char.split() if word not in stopwords])
-        else:
-            one_space_separated_tweet = ' '.join([word for word in words_greater_than_two_char.split()])
+        one_space_separated_tweet = ' '.join([word for word in words_greater_than_two_char.split()])
+
         return one_space_separated_tweet
