@@ -50,7 +50,22 @@ def make_boxplot(ax, array_of_values, y_lim, label_lst, y_label,title):
     ax.set_ylim(y_lim)
     ax.set_position([0.16, 0.16, 0.70, 0.70])
 
+def make_ci_lineplot(ax, line_name, y_data, y_lim, label_lst, y_label, title, alpha=0.05):
+    x_values = np.arange(1,6,1)
+    y_values = np.mean(y_data, axis=0)
+    upper_ci = np.percentile(y_data, 100*(1-(alpha/2)), axis=0)
+    lower_ci = np.percentile(y_data, 100*(alpha/2), axis=0)
 
+    
+    ax.plot(x_values, y_values, label=line_name)
+    ax.fill_between(x_values, upper_ci, lower_ci,alpha=0.50)
+
+    ax.legend()
+    ax.set_xlabel('Last Text Cleaning Step')
+    ax.set_ylabel(y_label)
+    ax.set_title(title)
+    ax.set_ylim(y_lim)
+    ax.set_position([0.16, 0.16, 0.70, 0.70])
 
 def save_fig(fig, saved_figure_name):
     plt.savefig(f'../images/{saved_figure_name}', dpi=300)
