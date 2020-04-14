@@ -70,14 +70,14 @@ def bootstrap(x, resamples=1000):
 
     return bootstrap_samples
 
-def make_sent_sensitivity_array (text_df, treatment, sentiment_type, num_resamples, total_cleaning_steps_list=range(1,6), exclude_stopwords=False):
+def make_sent_sensitivity_array (text_df, treatment, sentiment_type, num_resamples, total_cleaning_steps_list=range(1,6)):
     '''
     Performs iterative tweet pre-processing, scores with VADER algorithm and computed the bootstrapped sample means.
     '''
     sample_means_array = np.zeros((num_resamples, len(total_cleaning_steps_list)))
 
     for step in total_cleaning_steps_list:
-        clean_tweet_col = text_df[treatment].apply(lambda x: cleaner.clean_tweets(x,last_clean_step=step,exclude_stopwords=exclude_stopwords))
+        clean_tweet_col = text_df[treatment].apply(lambda x: cleaner.clean_tweets(x,last_clean_step=step))
         vader_df = tweet_col_to_vader_df(analyzer, clean_tweet_col)
 
         bootstrap_samples = bootstrap(vader_df[sentiment_type],resamples=1000)
@@ -190,12 +190,24 @@ if __name__ == '__main__':
     single_term_dict = {1: '@joebiden', 3: '#COVID19', 5: '@realdonaldtrump'}
     double_term_dict = {2: '@joebiden + #COVID19', 4: '@realdonaldtrump + #COVID19'}
 
+    '''
+    Removal steps:
+    0 - nothing
+    1 - lowercase
+    2 - eliminate cultural abbreviations
+    3 - eliminate grammatical abbreviation
+    4 - Removing Punctuations
+    5 - removing special characters
+    6 - removing stop words
+    
+    '''
+
     fig, ax = plt.subplots(1,figsize=(10,8))
 
     for key, treatment in treatment_dict.items():
-        two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, vader_param, num_resamples, total_cleaning_steps, exclude_stopwords=False)
-        make_ci_lineplot(ax, treatment,two_dim_array,(-0.05,0.31), total_cleaning_steps, 'Mean Compound Score (95% CI)',title=f'Compound Score vs Text Pre-processing\nWith Stopwords')
-    save_fig(fig, f'{state}_all_compound_shaded_line_plot.png')
+        two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, vader_param, num_resamples, total_cleaning_steps)
+        make_ci_lineplot(ax, treatment,two_dim_array,(-0.05,0.31), total_cleaning_steps, 'Mean Compound Score (95% CI)',title=f'Compound Score vs Text Pre-processing')
+    save_fig(fig, f'{state}_all_combo_compound_shaded_line_plot.png')
     '''
     Hypothesis tests, mean and variance - Think about some kind of Bayesian test
     '''

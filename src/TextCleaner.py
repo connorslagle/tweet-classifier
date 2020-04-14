@@ -19,7 +19,7 @@ class TextCleaner():
                              "mustn't":"must not"}
 
 
-    def clean_tweets(self, df_tweet_text, last_clean_step=5, exclude_stopwords=False):
+    def clean_tweets(self, df_tweet_text, last_clean_step=5):
         '''
         This function will clean the text of tweets, with ability to very the last step of cleaning.
         order:
@@ -31,28 +31,25 @@ class TextCleaner():
         '''
         df_tweet_text = str(df_tweet_text)
 
-        if exclude_stopwords:
-            df_tweet_text_sw = ' '.join([word for word in df_tweet_text.split() if word not in stopwords])
-        else:
-            df_tweet_text_sw = ' '.join([word for word in df_tweet_text.split()])
-
-        
         if last_clean_step == 0:
-            clean_text = df_tweet_text_sw
+            df_tweet_text_sw = ' '.join([word for word in df_tweet_text.split() if word not in stopwords])
 
         elif last_clean_step == 1:
-            clean_text = df_tweet_text_sw.lower()
+            clean_text = df_tweet_text_sw
 
         elif last_clean_step == 2:
+            clean_text = df_tweet_text_sw.lower()
+
+        elif last_clean_step == 3:
             lower = df_tweet_text_sw.lower()
             clean_text = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
         
-        elif last_clean_step == 3:
+        elif last_clean_step == 4:
             lower = df_tweet_text_sw.lower()
             without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
             clean_text = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
         
-        elif last_clean_step == 4:
+        elif last_clean_step == 5:
             lower = df_tweet_text_sw.lower()
             without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
             without_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
@@ -60,7 +57,7 @@ class TextCleaner():
             joined_re_groups = '|'.join([group for group in self.re_substitution_groups])
             clean_text = re.sub(joined_re_groups,' ',without_grammar_abbrevs)
         
-        elif last_clean_step == 5:
+        elif last_clean_step == 6:
             lower = df_tweet_text_sw.lower()
             without_text_abbrevs = ' '.join([self.text_abbrevs.get(elem, elem) for elem in lower.split()])
             without_grammar_abbrevs = ' '.join([self.grammar_abbrevs.get(elem, elem) for elem in without_text_abbrevs.split()])
