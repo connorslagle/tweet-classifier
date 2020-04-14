@@ -186,7 +186,7 @@ if __name__ == '__main__':
     # #     save_fig(fig,f'{state}_2_mean_compound_boxplot.png')
 
     # Replace boxplots with shadded line plots
-    vader_param = 'pos'
+    vader_param = 'compound'
     single_term_dict = {1: '@joebiden', 3: '#COVID19', 5: '@realdonaldtrump'}
     double_term_dict = {2: '@joebiden + #COVID19', 4: '@realdonaldtrump + #COVID19'}
 
@@ -194,8 +194,8 @@ if __name__ == '__main__':
 
     for key, treatment in treatment_dict.items():
         two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, vader_param, num_resamples, total_cleaning_steps)
-        make_ci_lineplot(ax, treatment,two_dim_array,(0.05,0.21), total_cleaning_steps, 'Mean Positive Proportion (95% CI)',title=f'Positive Proportion vs Text Pre-processing\nNo Stopwords')
-    save_fig(fig, f'{state}_all_positive_shaded_line_plot.png')
+        make_ci_lineplot(ax, treatment,two_dim_array,(-0.045,0.25), total_cleaning_steps, 'Mean Compound Score (95% CI)',title=f'Compound Score vs Text Pre-processing\nNo Stopwords')
+    save_fig(fig, f'{state}_all_compound_shaded_line_plot.png')
     '''
     Hypothesis tests, mean and variance - Think about some kind of Bayesian test
     '''
