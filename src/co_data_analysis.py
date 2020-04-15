@@ -80,8 +80,9 @@ def make_sent_sensitivity_array (text_df, treatment, sentiment_type, num_resampl
         clean_tweet_col = text_df[treatment].apply(lambda x: cleaner.clean_tweets(x,last_clean_step=step))
         vader_df = tweet_col_to_vader_df(analyzer, clean_tweet_col)
 
-        bootstrap_samples = bootstrap(vader_df[sentiment_type],resamples=1000)
-        bootstrap_sample_means = list(map(np.mean, bootstrap_samples))
+        bootstrap_samples = bootstrap(vader_df[sentiment_type],resamples=num_resamples)
+        bootstrap_sample_means = list(map(lambda x: np.std(x)/(num_resamples**0.5), bootstrap_samples))
+        # bootstrap_sample_means = list(np.array(bootstrap_sample_means) / (num_resamples**0.5))
 
         sample_means_array[:,step-1] = bootstrap_sample_means
     return sample_means_array
@@ -186,7 +187,7 @@ if __name__ == '__main__':
     # #     save_fig(fig,f'{state}_2_mean_compound_boxplot.png')
 
     # Replace boxplots with shadded line plots
-    vader_param = 'compound'
+    vader_param = 'pos'
     single_term_dict = {1: '@joebiden', 3: '#COVID19', 5: '@realdonaldtrump'}
     double_term_dict = {2: '@joebiden + #COVID19', 4: '@realdonaldtrump + #COVID19'}
 
@@ -199,15 +200,14 @@ if __name__ == '__main__':
     4 - Removing Punctuations
     5 - removing special characters
     6 - removing stop words
-    
     '''
 
     fig, ax = plt.subplots(1,figsize=(10,8))
 
     for key, treatment in treatment_dict.items():
         two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, vader_param, num_resamples, total_cleaning_steps)
-        make_ci_lineplot(ax, treatment,two_dim_array,(-0.05,0.31), total_cleaning_steps, 'Mean Compound Score (95% CI)',title=f'Compound Score vs Text Pre-processing')
-    save_fig(fig, f'{state}_all_combo_compound_shaded_line_plot.png')
+        make_ci_lineplot(ax, treatment,two_dim_array,(0,0.01), total_cleaning_steps, 'SE Positive Proportion (95% CI)',title=f'Positive Proportion vs Text Pre-processing')
+    save_fig(fig, f'{state}_all_combo_positive_se_shaded_line_plot.png')
     '''
     Hypothesis tests, mean and variance - Think about some kind of Bayesian test
     '''
