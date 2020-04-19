@@ -19,7 +19,7 @@ class TextCleaner():
                              "mustn't":"must not"}
 
 
-    def clean_tweets(self, df_tweet_text, last_clean_step=5):
+    def clean_tweets(self, df_tweet_text, last_clean_step=6):
         '''
         This function will clean the text of tweets, with ability to very the last step of cleaning.
         order:
@@ -77,7 +77,7 @@ class TextCleaner():
 
             clean_text = ' '.join([word for word in without_nontext.split() if word not in stopwords])
         
-        words_greater_than_two_char = ' '.join([word for word in clean_text.split() if len(word) >= 2])
+        words_greater_than_two_char = ' '.join([word for word in clean_text.split() if len(word) >= 3])
 
         one_space_separated_tweet = ' '.join([word for word in words_greater_than_two_char.split()])
 

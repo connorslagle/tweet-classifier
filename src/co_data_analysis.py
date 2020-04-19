@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn-darkgrid')
 plt.rcParams.update({'font.size': 20})
 
-from plotting_functions import make_boxplot, save_fig, make_hist, make_ci_lineplot
+from plotting_functions import make_boxplot, save_fig, make_hist, make_ci_lineplot, make_hor_barchart
 from TextCleaner import TextCleaner
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
@@ -81,7 +81,7 @@ def make_sent_sensitivity_array (text_df, treatment, sentiment_type, num_resampl
         vader_df = tweet_col_to_vader_df(analyzer, clean_tweet_col)
 
         bootstrap_samples = bootstrap(vader_df[sentiment_type],resamples=num_resamples)
-        bootstrap_sample_means = list(map(lambda x: np.std(x)/(num_resamples**0.5), bootstrap_samples))
+        bootstrap_sample_means = list(map(lambda x: np.mean(x), bootstrap_samples))
         # bootstrap_sample_means = list(np.array(bootstrap_sample_means) / (num_resamples**0.5))
 
         sample_means_array[:,step-1] = bootstrap_sample_means
@@ -105,41 +105,47 @@ if __name__ == '__main__':
 
     colorado_df = pd.DataFrame.from_dict(colorado_dict)
 
+    cleaner = TextCleaner()
+
     '''
     Plotting fig 1: Raw (unprocessed tweets)
     '''
-    # fig, ax = plt.subplots(3,1, figsize=(10,22), sharex=True)
+    fig, ax = plt.subplots(3,1, figsize=(10,22), sharex=True)
 
-    # fig_pos_lst = [[0.25, 0.67, 0.7, 0.30],
-    #               [0.25, 0.35, 0.7, 0.30],
-    #               [0.25, 0.03, 0.7, 0.30]]
-
-
-    # for i, treatment in enumerate(['@joebiden', '#COVID19', '@realdonaldtrump']):
-    #     total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
-    #     total_tweet_list = total_tweet_string.split()
-    #     words, counts = to_count_list(total_tweet_list)
-    #     if i == 2:
-    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
-    #     else:
-    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
-    # save_fig(f'{state}_single_word_raw_bar.png')
-
-    # fig, ax = plt.subplots(2,1, figsize=(10,22), sharex=True)
-
-    # fig_pos_lst = [[0.10, 0.51, 0.8, 0.30],
-    #               [0.10, 0.18, 0.8, 0.30]]
+    fig_pos_lst = [[0.25, 0.67, 0.7, 0.30],
+                  [0.25, 0.35, 0.7, 0.30],
+                  [0.25, 0.03, 0.7, 0.30]]
 
 
-    # for i, treatment in enumerate(['@joebiden + #COVID19', '@realdonaldtrump + #COVID19']):
-    #     total_tweet_string = colorado_df[treatment].str.cat(sep=' ')
-    #     total_tweet_list = total_tweet_string.split()
-    #     words, counts = to_count_list(total_tweet_list)
-    #     if i == 1:
-    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
-    #     else:
-    #         make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
-    # save_fig(fig,f'{state}_multi_word_raw_bar.png')
+    for i, treatment in enumerate(['@joebiden', '#COVID19', '@realdonaldtrump']):
+        clean_tweet_col = colorado_df[treatment].apply(lambda x: cleaner.clean_tweets(x))
+        total_tweet_string = clean_tweet_col.str.cat(sep=' ')
+        total_tweet_list = total_tweet_string.split()
+        words, counts = to_count_list(total_tweet_list)
+        if i == 2:
+            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
+        else:
+            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
+    save_fig(fig, f'{state}_single_word_cleaned_bar.png')
+
+    fig, ax = plt.subplots(2,1, figsize=(10,22), sharex=True)
+
+    fig_pos_lst = [[0.10, 0.51, 0.8, 0.30],
+                  [0.10, 0.18, 0.8, 0.30]]
+
+
+    for i, treatment in enumerate(['@joebiden + #COVID19', '@realdonaldtrump + #COVID19']):
+        clean_tweet_col = colorado_df[treatment].apply(lambda x: cleaner.clean_tweets(x))
+
+        total_tweet_string = clean_tweet_col.str.cat(sep=' ')
+        total_tweet_list = total_tweet_string.split()
+        words, counts = to_count_list(total_tweet_list)
+
+        if i == 1:
+            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'Relative Frequency (a.u.)',f'Top 25 Words for {treatment}')
+        else:
+            make_hor_barchart(ax[i],fig_pos_lst[i],words[:25][::-1],counts[:25][::-1],'',f'Top 25 Words for {treatment}')
+    save_fig(fig,f'{state}_multi_word_clean_bar.png')
 
     '''
     VADER analysis on RAW tweets, Figure 2
@@ -172,7 +178,7 @@ if __name__ == '__main__':
     '''
     preprocess tweets, perform VADER analysis, and make sensitivity boxplots Figures 4,5
     '''
-    cleaner = TextCleaner()
+    
     num_resamples = 1000
     total_cleaning_steps = range(7)
 
@@ -187,27 +193,28 @@ if __name__ == '__main__':
     # #     save_fig(fig,f'{state}_2_mean_compound_boxplot.png')
 
     # Replace boxplots with shadded line plots
-    vader_param = 'pos'
-    single_term_dict = {1: '@joebiden', 3: '#COVID19', 5: '@realdonaldtrump'}
-    double_term_dict = {2: '@joebiden + #COVID19', 4: '@realdonaldtrump + #COVID19'}
 
     '''
     Removal steps:
     0 - nothing
     1 - lowercase
     2 - eliminate cultural abbreviations
-    3 - eliminate grammatical abbreviation
+    3 - eliminate grammatical abbreviationnp.std(x)/(num_resamples**0.5)
     4 - Removing Punctuations
     5 - removing special characters
     6 - removing stop words
     '''
 
-    fig, ax = plt.subplots(1,figsize=(10,8))
+    # vader_param_dict = {'pos':[(0.05, 0.25), 'Positive Proportion'],'neg': [(0.04, 0.18), 'Negative Proportion'], 'compound':[(-0.05, 0.30), 'Compound Score']}
 
-    for key, treatment in treatment_dict.items():
-        two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, vader_param, num_resamples, total_cleaning_steps)
-        make_ci_lineplot(ax, treatment,two_dim_array,(0,0.01), total_cleaning_steps, 'SE Positive Proportion (95% CI)',title=f'Positive Proportion vs Text Pre-processing')
-    save_fig(fig, f'{state}_all_combo_positive_se_shaded_line_plot.png')
+    # for abbrev, lst in vader_param_dict.items():
+    #     fig, ax = plt.subplots(1,figsize=(10,8))
+
+    #     for key, treatment in treatment_dict.items():
+    #         two_dim_array = make_sent_sensitivity_array(colorado_df, treatment, abbrev, num_resamples, total_cleaning_steps)
+    #         make_ci_lineplot(ax, treatment,two_dim_array,lst[0], total_cleaning_steps, f'Mean {lst[1]} (95% CI)',title=f'{lst[1]} vs Text Pre-processing')
+
+    #     save_fig(fig, f'{state}_all_combo_{abbrev}_shaded_line_plot.png')
     '''
     Hypothesis tests, mean and variance - Think about some kind of Bayesian test
     '''
