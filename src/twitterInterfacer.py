@@ -1,16 +1,18 @@
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
-import twitter_credentials
+import os
 
 
 class TwitterStreamer():
     """
-    Class for streaming and processing live tweets. Accesses credentials in 'twitter_credentials.py' - hidden from github
+    Class for streaming and processing live tweets.
     """
     def __init__(self):
-        self.auth_handler = OAuthHandler(twitter_credentials.CONSUMER_KEY, twitter_credentials.CONSUMER_SECRET)
-        self.auth_handler.set_access_token(twitter_credentials.ACCESS_TOKEN, twitter_credentials.ACCESS_TOKEN_SECRET)
+        self.auth_handler = OAuthHandler(os.environ.get('TWITTER_API_KEY'),
+                                        os.environ.get('TWITTER_API_SECRET_KEY'))
+        self.auth_handler.set_access_token(os.environ.get('TWITTER_ACCESS_TOKEN'),
+                                        os.environ.get('TWITTER_SECRET_ACCESS_TOKEN'))
 
     def stream_tweets(self, fetched_tweets_filename, hash_tag_list,locations_list,tweet_file_size, async_bool):
         '''
@@ -56,4 +58,4 @@ class StdOutListener(StreamListener):
             return False
 
 if __name__ == "__main__":
-    print('')
+    pass

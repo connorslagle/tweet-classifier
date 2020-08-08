@@ -4,8 +4,8 @@ from tweepy import Stream
 import os
 from os import path
 import argparse
-from twitter_interfacer import TwitterStreamer
-from twitter_interfacer import StdOutListener
+from Twitter_Interfacer import TwitterStreamer
+from Twitter_Interfacer import StdOutListener
 
 '''
 Script for operating twitter streamer on EC2. Controlled by 'scrape_control.sh' bash file.
