@@ -37,9 +37,22 @@ class classificationEncoder():
     def to_csv(self, file_path):
         self.df_all.to_csv(file_path)
 
+class csvPipeline():
+    '''
+    Expand raw csv to relevant fields
+    '''
+    def _load_csv(self, raw_csv_file):
+        csv_file_path = f'../data/{raw_csv_file}'
+        self.raw_df = pd.read_csv(csv_file_path)
+
+    def _make_text_df(self):
+        
+
+
+
 if __name__ == "__main__":
     encoder = classificationEncoder()
-    encoder.build_full_df()
-    now = str(datetime.now()).replace(' ', '_')
-    encoder.to_csv(f'../data/all_{now}.csv')
+    # encoder.build_full_df()
+    # now = str(datetime.now()).replace(' ', '_')
+    # encoder.to_csv(f'../data/all_{now}.csv')
     
