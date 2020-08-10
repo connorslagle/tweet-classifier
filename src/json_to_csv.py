@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 class classificationEncoder():
     '''
@@ -39,4 +40,6 @@ class classificationEncoder():
 if __name__ == "__main__":
     encoder = classificationEncoder()
     encoder.build_full_df()
+    now = str(datetime.now()).replace(' ', '_')
+    encoder.to_csv(f'../data/all_{now}.csv')
     
